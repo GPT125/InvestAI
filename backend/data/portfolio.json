@@ -1,0 +1,49 @@
+{
+  "holdings": [
+    {
+      "ticker": "ARKF",
+      "shares": 12,
+      "avg_cost": 37.45
+    },
+    {
+      "ticker": "HIMS",
+      "shares": 10,
+      "avg_cost": 26.7
+    },
+    {
+      "ticker": "SPYM",
+      "shares": 14,
+      "avg_cost": 71.54
+    },
+    {
+      "ticker": "BAR",
+      "shares": 7,
+      "avg_cost": 39.79
+    },
+    {
+      "ticker": "SCHG",
+      "shares": 15,
+      "avg_cost": 30.43
+    },
+    {
+      "ticker": "F",
+      "shares": 23,
+      "avg_cost": 13.44
+    },
+    {
+      "ticker": "ET",
+      "shares": 10,
+      "avg_cost": 16.42
+    },
+    {
+      "ticker": "BAC",
+      "shares": 14,
+      "avg_cost": 57.06
+    },
+    {
+      "ticker": "SLV",
+      "shares": 17,
+      "avg_cost": 68.8
+    }
+  ]
+}
