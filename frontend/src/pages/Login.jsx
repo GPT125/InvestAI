@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { TrendingUp, Mail, Lock, User, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react';
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '47634608563-5ujf418s9d2imgli6qf5ne4geal510ub.apps.googleusercontent.com';
 
 function LoginForm() {
   const navigate = useNavigate();
