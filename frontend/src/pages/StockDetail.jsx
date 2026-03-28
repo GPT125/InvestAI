@@ -257,6 +257,22 @@ export default function StockDetail() {
           <span className="stock-sector-badge">
             {isETF ? (stock.category || 'ETF') : `${stock.sector} - ${stock.industry}`}
           </span>
+          {/* 52-Week Range */}
+          {stock.fiftyTwoWeekLow && stock.fiftyTwoWeekHigh && (
+            <div className="week52-range">
+              <div className="week52-labels">
+                <span>52W Low: ${stock.fiftyTwoWeekLow?.toFixed(2)}</span>
+                <span>52W High: ${stock.fiftyTwoWeekHigh?.toFixed(2)}</span>
+              </div>
+              <div className="week52-bar">
+                <div className="week52-fill" style={{
+                  width: `${Math.min(100, Math.max(0, ((stock.price - stock.fiftyTwoWeekLow) / (stock.fiftyTwoWeekHigh - stock.fiftyTwoWeekLow)) * 100))}%`
+                }}>
+                  <span className="week52-marker">&#9660;</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         {score && (
           <div className="score-panel">
@@ -886,6 +902,75 @@ export default function StockDetail() {
         )}
         {analyzing && <LoadingSpinner message={`AI is analyzing this ${isETF ? 'ETF' : 'stock'}...`} />}
         {analysis && <div className="ai-content" dangerouslySetInnerHTML={{ __html: renderMarkdown(analysis) }} />}
+      </div>
+
+      {/* Peer Comparison */}
+      <div className="peer-section">
+        <button className="peer-load-btn" onClick={async () => {
+          setPeersLoading(true);
+          try {
+            const res = await getStockPeers(ticker);
+            setPeers(res.data);
+          } catch {}
+          finally { setPeersLoading(false); }
+        }} disabled={peersLoading}>
+          {peersLoading ? 'Loading Peers...' : 'Compare with Sector Peers'}
+        </button>
+
+        {peers && peers.peers.length > 0 && (
+          <div className="peer-table-wrapper">
+            <h3>Peer Comparison — {peers.sector}</h3>
+            <div style={{overflowX: 'auto'}}>
+              <table className="peer-table">
+                <thead>
+                  <tr>
+                    <th>Ticker</th>
+                    <th>Price</th>
+                    <th>Mkt Cap</th>
+                    <th>P/E</th>
+                    <th>Fwd P/E</th>
+                    <th>P/B</th>
+                    <th>Div Yield</th>
+                    <th>Profit Margin</th>
+                    <th>Rev Growth</th>
+                    <th>ROE</th>
+                    <th>Beta</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="peer-current">
+                    <td><strong>{peers.current.ticker}</strong></td>
+                    <td>${peers.current.price?.toFixed(2)}</td>
+                    <td>{peers.current.marketCap ? (peers.current.marketCap / 1e9).toFixed(1) + 'B' : '—'}</td>
+                    <td>{peers.current.pe?.toFixed(1) || '—'}</td>
+                    <td>{peers.current.forwardPE?.toFixed(1) || '—'}</td>
+                    <td>{peers.current.pb?.toFixed(1) || '—'}</td>
+                    <td>{peers.current.dividendYield ? (peers.current.dividendYield * 100).toFixed(2) + '%' : '—'}</td>
+                    <td>{peers.current.profitMargin ? (peers.current.profitMargin * 100).toFixed(1) + '%' : '—'}</td>
+                    <td style={{color: peers.current.revenueGrowth > 0 ? '#00c853' : '#ff5252'}}>{peers.current.revenueGrowth ? (peers.current.revenueGrowth * 100).toFixed(1) + '%' : '—'}</td>
+                    <td>{peers.current.roe ? (peers.current.roe * 100).toFixed(1) + '%' : '—'}</td>
+                    <td>{peers.current.beta?.toFixed(2) || '—'}</td>
+                  </tr>
+                  {peers.peers.map(p => (
+                    <tr key={p.ticker} className="peer-row" onClick={() => window.location.href = '/stock/' + p.ticker} style={{cursor:'pointer'}}>
+                      <td>{p.ticker}</td>
+                      <td>${p.price?.toFixed(2)}</td>
+                      <td>{p.marketCap ? (p.marketCap / 1e9).toFixed(1) + 'B' : '—'}</td>
+                      <td>{p.pe?.toFixed(1) || '—'}</td>
+                      <td>{p.forwardPE?.toFixed(1) || '—'}</td>
+                      <td>{p.pb?.toFixed(1) || '—'}</td>
+                      <td>{p.dividendYield ? (p.dividendYield * 100).toFixed(2) + '%' : '—'}</td>
+                      <td>{p.profitMargin ? (p.profitMargin * 100).toFixed(1) + '%' : '—'}</td>
+                      <td style={{color: p.revenueGrowth > 0 ? '#00c853' : '#ff5252'}}>{p.revenueGrowth ? (p.revenueGrowth * 100).toFixed(1) + '%' : '—'}</td>
+                      <td>{p.roe ? (p.roe * 100).toFixed(1) + '%' : '—'}</td>
+                      <td>{p.beta?.toFixed(2) || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Company Description */}

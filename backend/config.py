@@ -1,7 +1,9 @@
 import os
 from dotenv import load_dotenv
 
+# Load .env from project root (local dev) or /etc/secrets/.env (Render)
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+load_dotenv('/etc/secrets/.env', override=True)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
