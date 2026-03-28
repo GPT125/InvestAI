@@ -103,6 +103,14 @@ def get_performance(ticker: str):
     return data
 
 
+@router.get("/{ticker}/peers")
+def get_peers(ticker: str):
+    result = stock_data.get_peer_comparison(ticker.upper())
+    if not result:
+        raise HTTPException(status_code=404, detail="Peers not found")
+    return result
+
+
 @router.get("/{ticker}/technicals")
 def get_technicals(ticker: str):
     data = stock_data.get_technical_indicators(ticker.upper())

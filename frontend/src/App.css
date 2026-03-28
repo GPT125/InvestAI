@@ -1468,3 +1468,201 @@ input:focus, textarea:focus, select:focus { box-shadow: 0 0 0 2px #6366f120; }
   font-size: 12px;
   color: white;
 }
+
+/* Correlation Matrix */
+.correlation-section {
+  margin-top: 24px;
+}
+.correlation-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(99,102,241,0.4);
+  background: rgba(99,102,241,0.1);
+  color: #7c8cf8;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 16px;
+}
+.correlation-btn:hover {
+  background: rgba(99,102,241,0.2);
+}
+.correlation-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.correlation-matrix {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.correlation-matrix h3 {
+  color: #e0e0e0;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+.corr-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.corr-table th {
+  padding: 8px 12px;
+  color: #7c8cf8;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+.corr-label {
+  font-weight: 700;
+  color: #7c8cf8;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.corr-cell {
+  padding: 10px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: #e0e0e0;
+  border-radius: 4px;
+  transition: transform 0.15s;
+}
+.corr-cell:hover {
+  transform: scale(1.1);
+}
+.corr-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: #888;
+}
+
+/* Trade Calculator */
+.trade-calculator-section {
+  margin-top: 20px;
+}
+.calculator-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: #e0e0e0;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.calculator-toggle:hover {
+  border-color: rgba(99,102,241,0.4);
+  background: rgba(99,102,241,0.08);
+}
+.calculator-panel {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 20px;
+}
+.calc-inputs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.calc-input-group label {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.calc-input-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.3);
+  color: #e0e0e0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.calc-input-group input:focus {
+  border-color: #7c8cf8;
+  outline: none;
+}
+.calc-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.calc-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.03);
+}
+.calc-result-row.highlight {
+  background: rgba(99,102,241,0.1);
+  border: 1px solid rgba(99,102,241,0.2);
+}
+.calc-label {
+  color: #999;
+  font-size: 13px;
+}
+.calc-value {
+  color: #e0e0e0;
+  font-weight: 600;
+  font-size: 15px;
+}
+.calc-hint {
+  color: #666;
+  font-size: 13px;
+  text-align: center;
+  padding: 12px;
+}
+.risk-reward-bar {
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.rr-loss {
+  background: rgba(255,82,82,0.3);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff5252;
+  font-size: 12px;
+  font-weight: 700;
+}
+.rr-entry {
+  background: #333;
+  padding: 0 4px;
+  color: white;
+  font-size: 10px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.rr-gain {
+  background: rgba(0,200,83,0.3);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00c853;
+  font-size: 12px;
+  font-weight: 700;
+}

@@ -24,6 +24,7 @@ export const getFinancialStats = (ticker) => api.get(`/stocks/${ticker}/financia
 export const getAnalystData = (ticker) => api.get(`/stocks/${ticker}/analyst`);
 export const getPerformanceComparison = (ticker) => api.get(`/stocks/${ticker}/performance`);
 export const getTechnicals = (ticker) => api.get(`/stocks/${ticker}/technicals`);
+export const getStockPeers = (ticker) => api.get(`/stocks/${ticker}/peers`);
 
 // Financials (FMP multi-source)
 export const getIncomeStatement = (ticker, period = 'quarter') => api.get(`/financials/${ticker}/income-statement?period=${period}`);
@@ -42,6 +43,7 @@ export const getMacroData = () => api.get('/financials/macro/dashboard');
 export const compareStocks = (tickers) => api.get(`/compare/?tickers=${tickers}`);
 export const compareHistory = (tickers, period = '1y') => api.get(`/compare/history?tickers=${tickers}&period=${period}`);
 export const compareAIAnalysis = (tickers) => api.get(`/compare/ai-analysis?tickers=${tickers}`);
+export const getCorrelation = (tickers, period) => api.post('/compare/correlation', { tickers, period });
 
 // Scoring & Screener
 export const getStockScore = (ticker) => api.get(`/scoring/${ticker}`);

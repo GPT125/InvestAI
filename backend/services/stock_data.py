@@ -664,6 +664,67 @@ def get_historical_summary(ticker: str) -> Optional[dict]:
         return None
 
 
+def get_peer_comparison(ticker: str) -> Optional[dict]:
+    """Get comparison data for a stock's peers in the same sector."""
+    try:
+        stock = yf.Ticker(ticker)
+        info = stock.info
+        sector = info.get("sector", "")
+        industry = info.get("industry", "")
+
+        # Get stock's own data
+        current = {
+            "ticker": ticker,
+            "name": info.get("shortName", ticker),
+            "price": info.get("regularMarketPrice") or info.get("currentPrice", 0),
+            "marketCap": info.get("marketCap", 0),
+            "pe": info.get("trailingPE"),
+            "forwardPE": info.get("forwardPE"),
+            "pb": info.get("priceToBook"),
+            "dividendYield": info.get("dividendYield"),
+            "profitMargin": info.get("profitMargins"),
+            "revenueGrowth": info.get("revenueGrowth"),
+            "roe": info.get("returnOnEquity"),
+            "debtToEquity": info.get("debtToEquity"),
+            "beta": info.get("beta"),
+            "fiftyTwoWeekHigh": info.get("fiftyTwoWeekHigh"),
+            "fiftyTwoWeekLow": info.get("fiftyTwoWeekLow"),
+        }
+
+        # Find peers from SP500 in same sector
+        from backend.data.sp500_tickers import SP500_TICKERS
+        peers = []
+        for t in SP500_TICKERS[:100]:
+            if t == ticker:
+                continue
+            try:
+                p_info = get_stock_info(t)
+                if p_info and p_info.get("sector") == sector:
+                    peers.append({
+                        "ticker": t,
+                        "name": p_info.get("shortName", t),
+                        "price": p_info.get("regularMarketPrice") or p_info.get("currentPrice", 0),
+                        "marketCap": p_info.get("marketCap", 0),
+                        "pe": p_info.get("trailingPE"),
+                        "forwardPE": p_info.get("forwardPE"),
+                        "pb": p_info.get("priceToBook"),
+                        "dividendYield": p_info.get("dividendYield"),
+                        "profitMargin": p_info.get("profitMargins"),
+                        "revenueGrowth": p_info.get("revenueGrowth"),
+                        "roe": p_info.get("returnOnEquity"),
+                        "debtToEquity": p_info.get("debtToEquity"),
+                        "beta": p_info.get("beta"),
+                    })
+                    if len(peers) >= 5:
+                        break
+            except:
+                continue
+
+        return {"current": current, "peers": peers, "sector": sector, "industry": industry}
+    except:
+        return None
+
+
 def get_technical_indicators(ticker: str) -> Optional[dict]:
     """Compute thinkorswim-style technical indicators from 1 year of daily data."""
     key = f"technicals:{ticker}"

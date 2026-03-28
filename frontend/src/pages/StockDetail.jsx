@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Legend } from 'recharts';
-import { getStock, getStockHistory, getStockScore, getStockNews, analyzeStock, getETFHoldings, getExtendedHoursHistory, getIncomeStatement, getEarnings, getPerformanceComparison, getTechnicals } from '../api/client';
+import { getStock, getStockHistory, getStockScore, getStockNews, analyzeStock, getETFHoldings, getExtendedHoursHistory, getIncomeStatement, getEarnings, getPerformanceComparison, getTechnicals, getStockPeers } from '../api/client';
 import { formatCurrency, formatLargeNumber, formatPercent, formatChangePercent, getChangeColor, getScoreColor } from '../utils/formatters';
 import { PERIODS } from '../utils/constants';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { Brain, ExternalLink, TrendingUp, TrendingDown, Clock, Target, Calendar, DollarSign, BarChart3, Activity, BarChart2, Gauge } from 'lucide-react';
+import { Brain, ExternalLink, TrendingUp, TrendingDown, Clock, Target, Calendar, DollarSign, BarChart3, Activity, BarChart2, Gauge, Calculator, ChevronDown } from 'lucide-react';
 
 const COLORS = ['#7c8cf8', '#22c55e', '#ef4444', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1'];
 
@@ -70,6 +70,13 @@ export default function StockDetail() {
   const [earningsData, setEarningsData] = useState(null);
   const [perfData, setPerfData] = useState(null);
   const [technicals, setTechnicals] = useState(null);
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [calcEntry, setCalcEntry] = useState('');
+  const [calcTarget, setCalcTarget] = useState('');
+  const [calcStop, setCalcStop] = useState('');
+  const [calcRisk, setCalcRisk] = useState('1000');
+  const [peers, setPeers] = useState(null);
+  const [peersLoading, setPeersLoading] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -137,6 +144,26 @@ export default function StockDetail() {
     } finally {
       setAnalyzing(false);
     }
+  };
+
+  const calcResults = () => {
+    const entry = parseFloat(calcEntry) || 0;
+    const target = parseFloat(calcTarget) || 0;
+    const stop = parseFloat(calcStop) || 0;
+    const riskAmount = parseFloat(calcRisk) || 0;
+
+    if (!entry || !stop || !riskAmount) return null;
+
+    const riskPerShare = Math.abs(entry - stop);
+    const shares = riskPerShare > 0 ? Math.floor(riskAmount / riskPerShare) : 0;
+    const totalCost = shares * entry;
+    const potentialLoss = shares * riskPerShare;
+    const potentialGain = target ? shares * Math.abs(target - entry) : 0;
+    const riskReward = potentialLoss > 0 && potentialGain > 0 ? (potentialGain / potentialLoss).toFixed(2) : 'N/A';
+    const targetPercent = target && entry ? (((target - entry) / entry) * 100).toFixed(2) : 0;
+    const stopPercent = entry ? (((stop - entry) / entry) * 100).toFixed(2) : 0;
+
+    return { shares, totalCost, potentialLoss, potentialGain, riskReward, riskPerShare, targetPercent, stopPercent };
   };
 
   if (loading) return <LoadingSpinner message={`Loading ${ticker}...`} />;
@@ -715,6 +742,91 @@ export default function StockDetail() {
           </div>
         </div>
       )}
+
+      {/* Trade Calculator */}
+      <div className="trade-calculator-section">
+        <button className="calculator-toggle" onClick={() => {
+          setShowCalculator(!showCalculator);
+          if (!calcEntry && stock?.price) setCalcEntry(stock.price.toFixed(2));
+        }}>
+          <Calculator size={18} /> Trade Calculator
+          <ChevronDown size={16} style={{ transform: showCalculator ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+        </button>
+
+        {showCalculator && (
+          <div className="calculator-panel">
+            <div className="calc-inputs">
+              <div className="calc-input-group">
+                <label>Entry Price ($)</label>
+                <input type="number" value={calcEntry} onChange={e => setCalcEntry(e.target.value)} placeholder="0.00" step="0.01" />
+              </div>
+              <div className="calc-input-group">
+                <label>Target Price ($)</label>
+                <input type="number" value={calcTarget} onChange={e => setCalcTarget(e.target.value)} placeholder="0.00" step="0.01" />
+              </div>
+              <div className="calc-input-group">
+                <label>Stop Loss ($)</label>
+                <input type="number" value={calcStop} onChange={e => setCalcStop(e.target.value)} placeholder="0.00" step="0.01" />
+              </div>
+              <div className="calc-input-group">
+                <label>Max Risk ($)</label>
+                <input type="number" value={calcRisk} onChange={e => setCalcRisk(e.target.value)} placeholder="1000" />
+              </div>
+            </div>
+
+            {(() => {
+              const r = calcResults();
+              if (!r) return <p className="calc-hint">Enter entry price and stop loss to calculate position size.</p>;
+              return (
+                <div className="calc-results">
+                  <div className="calc-result-row">
+                    <span className="calc-label">Position Size</span>
+                    <span className="calc-value">{r.shares} shares</span>
+                  </div>
+                  <div className="calc-result-row">
+                    <span className="calc-label">Total Cost</span>
+                    <span className="calc-value">${r.totalCost.toLocaleString()}</span>
+                  </div>
+                  <div className="calc-result-row">
+                    <span className="calc-label">Risk per Share</span>
+                    <span className="calc-value" style={{color:'#ff5252'}}>${r.riskPerShare.toFixed(2)}</span>
+                  </div>
+                  <div className="calc-result-row">
+                    <span className="calc-label">Potential Loss</span>
+                    <span className="calc-value" style={{color:'#ff5252'}}>-${r.potentialLoss.toLocaleString()}</span>
+                  </div>
+                  {r.potentialGain > 0 && (
+                    <>
+                      <div className="calc-result-row">
+                        <span className="calc-label">Potential Gain</span>
+                        <span className="calc-value" style={{color:'#00c853'}}>+${r.potentialGain.toLocaleString()}</span>
+                      </div>
+                      <div className="calc-result-row highlight">
+                        <span className="calc-label">Risk/Reward Ratio</span>
+                        <span className="calc-value" style={{color: parseFloat(r.riskReward) >= 2 ? '#00c853' : parseFloat(r.riskReward) >= 1 ? '#ffc107' : '#ff5252', fontWeight: 800, fontSize: 20}}>
+                          1:{r.riskReward}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                  {/* Visual risk/reward bar */}
+                  {r.potentialGain > 0 && r.potentialLoss > 0 && (
+                    <div className="risk-reward-bar">
+                      <div className="rr-loss" style={{flex: r.potentialLoss}}>
+                        <span>{r.stopPercent}%</span>
+                      </div>
+                      <div className="rr-entry">&#9650;</div>
+                      <div className="rr-gain" style={{flex: r.potentialGain}}>
+                        <span>+{r.targetPercent}%</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+      </div>
 
       {/* ETF Holdings */}
       {isETF && etfHoldings && etfHoldings.holdings && etfHoldings.holdings.length > 0 && (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar } from 'recharts';
-import { compareStocks, compareHistory, compareAIAnalysis, searchStocks } from '../api/client';
+import { compareStocks, compareHistory, compareAIAnalysis, searchStocks, getCorrelation } from '../api/client';
 import { formatCurrency, formatLargeNumber, formatPercent, formatChangePercent, getChangeColor } from '../utils/formatters';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { GitCompare, Plus, X, Brain, TrendingUp, Search } from 'lucide-react';
@@ -26,6 +26,8 @@ export default function Compare() {
   const [loading, setLoading] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState('');
   const [analyzingAI, setAnalyzingAI] = useState(false);
+  const [correlation, setCorrelation] = useState(null);
+  const [correlationLoading, setCorrelationLoading] = useState(false);
 
   const handleSearch = async (query, index) => {
     setActiveInput(index);
@@ -275,6 +277,60 @@ export default function Compare() {
           )}
           {analyzingAI && <LoadingSpinner message="AI is comparing these stocks..." />}
           {aiAnalysis && <div className="ai-content">{aiAnalysis}</div>}
+        </div>
+      )}
+
+      {stocks.length >= 2 && (
+        <div className="correlation-section">
+          <button className="correlation-btn" onClick={async () => {
+            setCorrelationLoading(true);
+            try {
+              const res = await getCorrelation(stocks.map(s => s.ticker), period);
+              setCorrelation(res.data);
+            } catch { setCorrelation(null); }
+            finally { setCorrelationLoading(false); }
+          }} disabled={correlationLoading}>
+            {correlationLoading ? 'Calculating...' : 'Show Correlation Matrix'}
+          </button>
+
+          {correlation && (
+            <div className="correlation-matrix">
+              <h3>Price Correlation Matrix ({correlation.period})</h3>
+              <table className="corr-table">
+                <thead>
+                  <tr>
+                    <th></th>
+                    {correlation.tickers.map(t => <th key={t}>{t}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {correlation.tickers.map((t1, i) => (
+                    <tr key={t1}>
+                      <td className="corr-label">{t1}</td>
+                      {correlation.matrix[i].map((val, j) => {
+                        const color = i === j ? 'rgba(99,102,241,0.3)'
+                          : val > 0.7 ? 'rgba(0,200,83,0.3)'
+                          : val > 0.3 ? 'rgba(255,193,7,0.2)'
+                          : val > -0.3 ? 'rgba(255,255,255,0.05)'
+                          : 'rgba(255,82,82,0.3)';
+                        return (
+                          <td key={j} className="corr-cell" style={{ background: color }}>
+                            {val.toFixed(2)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="corr-legend">
+                <span style={{color:'#00c853'}}>■ High correlation ({">"} 0.7)</span>
+                <span style={{color:'#ffc107'}}>■ Moderate (0.3-0.7)</span>
+                <span style={{color:'#888'}}>■ Low (-0.3 to 0.3)</span>
+                <span style={{color:'#ff5252'}}>■ Negative ({"<"} -0.3)</span>
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

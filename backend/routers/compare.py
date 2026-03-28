@@ -147,3 +147,49 @@ Provide:
         return {"analysis": data["choices"][0]["message"]["content"]}
     except Exception as e:
         return {"analysis": f"AI analysis failed: {str(e)}"}
+
+
+@router.post("/correlation")
+def get_correlation(body: dict):
+    """Calculate price correlation matrix for a list of tickers over a given period."""
+    tickers = body.get("tickers", [])
+    period = body.get("period", "1y")
+
+    if len(tickers) < 2 or len(tickers) > 10:
+        raise HTTPException(status_code=400, detail="Provide 2-10 tickers")
+
+    import pandas as pd
+    import yfinance as yf
+
+    # Download all price histories
+    closes = {}
+    for t in tickers:
+        try:
+            hist = yf.Ticker(t).history(period=period)
+            if hist is not None and not hist.empty:
+                closes[t] = hist['Close']
+        except:
+            continue
+
+    if len(closes) < 2:
+        raise HTTPException(status_code=400, detail="Not enough valid tickers")
+
+    df = pd.DataFrame(closes)
+    # Calculate daily returns correlation
+    returns = df.pct_change().dropna()
+    corr = returns.corr()
+
+    # Convert to serializable format
+    matrix = []
+    tickers_found = list(corr.columns)
+    for t1 in tickers_found:
+        row = []
+        for t2 in tickers_found:
+            row.append(round(float(corr.loc[t1, t2]), 4))
+        matrix.append(row)
+
+    return {
+        "tickers": tickers_found,
+        "matrix": matrix,
+        "period": period
+    }
