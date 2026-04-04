@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "backend",
-      "runtimeExecutable": "/usr/bin/python3",
-      "runtimeArgs": ["-c", "import os; os.chdir('/Users/shervinshapoury/Documents/Claude Projects/Stock Analysis'); import uvicorn; uvicorn.run('backend.main:app', host='0.0.0.0', port=8000, loop='asyncio', http='h11')"],
+      "runtimeExecutable": "/tmp/stockvenv/bin/uvicorn",
+      "runtimeArgs": ["backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--loop", "asyncio"],
       "port": 8000
     },
     {

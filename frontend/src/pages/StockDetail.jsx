@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Legend } from 'recharts';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Legend, ReferenceLine, ComposedChart } from 'recharts';
 import { getStock, getStockHistory, getStockScore, getStockNews, analyzeStock, getETFHoldings, getExtendedHoursHistory, getIncomeStatement, getEarnings, getPerformanceComparison, getTechnicals, getStockPeers } from '../api/client';
 import { formatCurrency, formatLargeNumber, formatPercent, formatChangePercent, getChangeColor, getScoreColor } from '../utils/formatters';
 import { PERIODS } from '../utils/constants';
@@ -176,7 +176,7 @@ export default function StockDetail() {
   // Only allow after-hours view for short periods (1D/5D) where intraday data makes sense
   const canShowExtended = ['1d', '5d'].includes(period) && extendedHistory.length > 0;
 
-  const chartData = showExtended && canShowExtended
+  const rawChartData = showExtended && canShowExtended
     ? extendedHistory.map((p) => ({
         date: p.date,
         close: p.close,
@@ -184,6 +184,23 @@ export default function StockDetail() {
         isExtended: p.isExtended,
       }))
     : history;
+
+  // Compute SMAs for periods with enough data
+  const showSMA = !['1d', '5d'].includes(period);
+  const chartData = rawChartData.map((d, i) => {
+    const result = { ...d };
+    if (showSMA) {
+      if (i >= 49) {
+        const slice50 = rawChartData.slice(i - 49, i + 1);
+        result.sma50 = parseFloat((slice50.reduce((s, p) => s + (p.close || 0), 0) / 50).toFixed(2));
+      }
+      if (i >= 199) {
+        const slice200 = rawChartData.slice(i - 199, i + 1);
+        result.sma200 = parseFloat((slice200.reduce((s, p) => s + (p.close || 0), 0) / 200).toFixed(2));
+      }
+    }
+    return result;
+  });
 
   const targetPrice = stock.targetMeanPrice;
   const targetHigh = stock.targetHighPrice;
@@ -209,6 +226,13 @@ export default function StockDetail() {
 
   // EPS chart data
   const epsChartData = earningsData?.data?.eps_history?.filter(e => e.epsActual != null)?.slice().reverse() || [];
+
+  // Gross margin trend
+  const grossMarginData = incomeData.filter(q => q.revenue > 0 && q.grossProfit != null).map(q => ({
+    quarter: q.quarter,
+    grossMarginPct: parseFloat(((q.grossProfit / q.revenue) * 100).toFixed(1)),
+    operatingMarginPct: q.operatingIncome && q.revenue > 0 ? parseFloat(((q.operatingIncome / q.revenue) * 100).toFixed(1)) : null,
+  }));
 
   // Build valuation metrics for radar-like display
   const valuationMetrics = !isETF ? [
@@ -308,28 +332,63 @@ export default function StockDetail() {
             </button>
           )}
         </div>
-        <ResponsiveContainer width="100%" height={350}>
-          <AreaChart data={chartData}>
-            <defs>
-              <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={isUp ? '#22c55e' : '#ef4444'} stopOpacity={0.3} />
-                <stop offset="95%" stopColor={isUp ? '#22c55e' : '#ef4444'} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#222" />
-            <XAxis dataKey="date" tick={{ fill: '#888', fontSize: 11 }} tickFormatter={(d) => {
-              if (showExtended && canShowExtended) return d.slice(11) || d.slice(5, 10);
-              return d.slice(5);
-            }} interval="preserveStartEnd" minTickGap={50} />
-            <YAxis tick={{ fill: '#888', fontSize: 12 }} domain={['auto', 'auto']} />
-            <Tooltip
-              contentStyle={{ backgroundColor: '#1e1e2e', border: '1px solid #333', borderRadius: 8 }}
-              labelStyle={{ color: '#ccc' }}
-              formatter={(v, name, props) => [formatCurrency(v), props.payload?.isExtended ? 'After Hours' : 'Price']}
-            />
-            <Area type="monotone" dataKey="close" stroke={isUp ? '#22c55e' : '#ef4444'} fill="url(#colorPrice)" strokeWidth={2} dot={false} connectNulls />
-          </AreaChart>
-        </ResponsiveContainer>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <ResponsiveContainer width="100%" height={300}>
+            <ComposedChart data={chartData}>
+              <defs>
+                <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={isUp ? '#22c55e' : '#ef4444'} stopOpacity={0.25} />
+                  <stop offset="95%" stopColor={isUp ? '#22c55e' : '#ef4444'} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1a1a2e" />
+              <XAxis dataKey="date" tick={{ fill: '#888', fontSize: 11 }} tickFormatter={(d) => {
+                if (showExtended && canShowExtended) return d.slice(11) || d.slice(5, 10);
+                return d.slice(5);
+              }} interval="preserveStartEnd" minTickGap={50} />
+              <YAxis tick={{ fill: '#888', fontSize: 12 }} domain={['auto', 'auto']} width={65} tickFormatter={(v) => `$${v.toFixed(0)}`} />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#1e1e2e', border: '1px solid #333', borderRadius: 8 }}
+                labelStyle={{ color: '#ccc' }}
+                formatter={(v, name) => {
+                  if (name === 'close') return [formatCurrency(v), 'Price'];
+                  if (name === 'sma50') return [formatCurrency(v), 'SMA 50'];
+                  if (name === 'sma200') return [formatCurrency(v), 'SMA 200'];
+                  return [formatCurrency(v), name];
+                }}
+              />
+              <Area type="monotone" dataKey="close" stroke={isUp ? '#22c55e' : '#ef4444'} fill="url(#colorPrice)" strokeWidth={2} dot={false} connectNulls />
+              {showSMA && chartData.some(d => d.sma50) && (
+                <Line type="monotone" dataKey="sma50" stroke="#f59e0b" strokeWidth={1.5} dot={false} connectNulls strokeDasharray="4 2" />
+              )}
+              {showSMA && chartData.some(d => d.sma200) && (
+                <Line type="monotone" dataKey="sma200" stroke="#8b5cf6" strokeWidth={1.5} dot={false} connectNulls strokeDasharray="4 2" />
+              )}
+              {showSMA && (chartData.some(d => d.sma50) || chartData.some(d => d.sma200)) && (
+                <Legend
+                  wrapperStyle={{ fontSize: 11, paddingTop: 4 }}
+                  formatter={(v) => v === 'close' ? 'Price' : v === 'sma50' ? 'SMA 50' : v === 'sma200' ? 'SMA 200' : v}
+                />
+              )}
+            </ComposedChart>
+          </ResponsiveContainer>
+
+          {/* Volume Chart */}
+          {chartData.some(d => d.volume > 0) && (
+            <ResponsiveContainer width="100%" height={70}>
+              <BarChart data={chartData} barCategoryGap={0}>
+                <XAxis dataKey="date" hide />
+                <YAxis tick={{ fill: '#555', fontSize: 9 }} width={65} tickFormatter={(v) => v >= 1e6 ? `${(v/1e6).toFixed(0)}M` : v >= 1e3 ? `${(v/1e3).toFixed(0)}K` : v} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1e1e2e', border: '1px solid #333', borderRadius: 8, fontSize: 11 }}
+                  formatter={(v) => [`${(v/1e6).toFixed(2)}M`, 'Volume']}
+                  labelStyle={{ color: '#888', fontSize: 10 }}
+                />
+                <Bar dataKey="volume" fill="#7c8cf8" opacity={0.6} radius={0} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
       </div>
 
       {/* Data-Driven Charts Section - Revenue, Earnings, Performance */}
@@ -390,12 +449,24 @@ export default function StockDetail() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#222" />
                     <XAxis dataKey="quarter" tick={{ fill: '#888', fontSize: 10 }} />
                     <YAxis tick={{ fill: '#888', fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
+                    <ReferenceLine y={0} stroke="#444" strokeWidth={1} />
                     <Tooltip
                       contentStyle={{ backgroundColor: '#1e1e2e', border: '1px solid #333', borderRadius: 8 }}
-                      formatter={(v) => [`$${v?.toFixed(2)}`]}
+                      formatter={(v, name, props) => {
+                        const d = props.payload;
+                        if (name === 'epsActual' && d.epsEstimate != null) {
+                          const beat = v > d.epsEstimate;
+                          return [`$${v?.toFixed(2)} ${beat ? '▲ Beat' : '▼ Miss'}`, 'Actual EPS'];
+                        }
+                        return [`$${v?.toFixed(2)}`, name === 'epsEstimate' ? 'Est. EPS' : 'Actual EPS'];
+                      }}
                     />
-                    <Bar dataKey="epsEstimate" fill="#555" name="Estimate" radius={[3, 3, 0, 0]} />
-                    <Bar dataKey="epsActual" fill="#22c55e" name="Actual" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="epsEstimate" fill="#444" name="Estimate" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="epsActual" name="Actual" radius={[3, 3, 0, 0]}>
+                      {epsChartData.map((entry, index) => (
+                        <Cell key={index} fill={entry.epsActual >= (entry.epsEstimate ?? entry.epsActual) ? '#22c55e' : '#ef4444'} />
+                      ))}
+                    </Bar>
                     <Legend wrapperStyle={{ fontSize: 11, color: '#888' }} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -411,14 +482,46 @@ export default function StockDetail() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#222" />
                     <XAxis dataKey="period" tick={{ fill: '#888', fontSize: 11 }} />
                     <YAxis tick={{ fill: '#888', fontSize: 11 }} tickFormatter={(v) => `${v}%`} />
+                    <ReferenceLine y={0} stroke="#555" strokeWidth={1.5} />
                     <Tooltip
                       contentStyle={{ backgroundColor: '#1e1e2e', border: '1px solid #333', borderRadius: 8 }}
-                      formatter={(v) => [`${v?.toFixed(1)}%`]}
+                      formatter={(v, name) => [`${v?.toFixed(1)}%`, name === 'stock' ? ticker : 'S&P 500']}
                     />
-                    <Bar dataKey="stock" fill="#7c8cf8" name={ticker} radius={[3, 3, 0, 0]} />
-                    <Bar dataKey="sp500" fill="#f59e0b" name="S&P 500" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="stock" name={ticker} radius={[3, 3, 0, 0]}>
+                      {perfChartData.map((entry, i) => (
+                        <Cell key={i} fill={entry.stock >= 0 ? '#7c8cf8' : '#ef4444'} />
+                      ))}
+                    </Bar>
+                    <Bar dataKey="sp500" name="S&P 500" radius={[3, 3, 0, 0]}>
+                      {perfChartData.map((entry, i) => (
+                        <Cell key={i} fill={entry.sp500 >= 0 ? '#f59e0b' : '#ef4444'} />
+                      ))}
+                    </Bar>
                     <Legend wrapperStyle={{ fontSize: 11, color: '#888' }} />
                   </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {/* Gross Margin Trend */}
+            {grossMarginData.length > 1 && (
+              <div className="chart-card">
+                <h3>Margin Trend (Quarterly)</h3>
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart data={grossMarginData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#222" />
+                    <XAxis dataKey="quarter" tick={{ fill: '#888', fontSize: 10 }} />
+                    <YAxis tick={{ fill: '#888', fontSize: 10 }} tickFormatter={(v) => `${v}%`} domain={['auto', 'auto']} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#1e1e2e', border: '1px solid #333', borderRadius: 8 }}
+                      formatter={(v, name) => [`${v?.toFixed(1)}%`, name === 'grossMarginPct' ? 'Gross Margin' : 'Operating Margin']}
+                    />
+                    <Line type="monotone" dataKey="grossMarginPct" stroke="#7c8cf8" strokeWidth={2} dot={{ r: 3 }} name="Gross Margin" />
+                    {grossMarginData.some(d => d.operatingMarginPct != null) && (
+                      <Line type="monotone" dataKey="operatingMarginPct" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} name="Operating Margin" />
+                    )}
+                    <Legend wrapperStyle={{ fontSize: 11, color: '#888' }} />
+                  </LineChart>
                 </ResponsiveContainer>
               </div>
             )}
