@@ -79,4 +79,29 @@ export const getWatchlist = () => api.get('/watchlist/');
 export const addToWatchlist = (ticker, alertType, alertValue, notes) => api.post('/watchlist/', { ticker, alertType, alertValue, notes });
 export const removeFromWatchlist = (ticker) => api.delete(`/watchlist/${ticker}`);
 
+// Momentum
+export const getMomentumRadar = (limit = 30) => api.get(`/momentum/radar?limit=${limit}`);
+export const getUnusualVolume = (limit = 20) => api.get(`/momentum/unusual-volume?limit=${limit}`);
+export const getBreakouts = (limit = 15) => api.get(`/momentum/breakouts?limit=${limit}`);
+
+// Sector Rotation
+export const getSectorRotation = (period = '6mo') => api.get(`/rotation/flow?period=${period}`);
+export const getRelativeRotation = () => api.get('/rotation/rrg');
+
+// Battle Arena
+export const stockBattle = (a, b) => api.get(`/battle/fight?ticker_a=${a}&ticker_b=${b}`);
+
+// Market Weather
+export const getWeatherForecast = () => api.get('/weather/forecast');
+
+// Macro Pulse
+export const getMacroPulse = () => api.get('/macro/pulse');
+
+// Portfolio X-Ray
+export const portfolioXray = (holdings) => api.post('/xray/analyze', { holdings });
+
+// Smart Patterns
+export const scanPatterns = (limit = 30) => api.get(`/patterns/scan?limit=${limit}`);
+export const getStockPatterns = (ticker) => api.get(`/patterns/stock/${ticker}`);
+
 export default api;

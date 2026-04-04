@@ -1,0 +1,14 @@
+Claude TO-DO:
+
+1. Work on making the website/platform more proffesional
+2. Generate a new market summary every 5 minutes
+3. Make the Compare with Sector Peers feature work better and make it more formatted
+4. Make the website more organized with information more easy to find
+5. Make it so that people can have stock trading competitions with each other so like share a link with each other and once the link is clicked, they have started their competetiong. Competitions are custom and the person creating it has many options, like 2 year competition, budget, etc. You can also challenge yourself to AI bot and see who makes more money. The AI bot would simiutanisually run in the backend of the platform to gather informstion EVERY SINGLE piece of information about the stocks to make it's descision. You can have multiple competetions at once 
+8. Format all of the AI information because the format right now looks bad and un-organized
+9. In the setting make it so that you can change the platform color theme and UI color
+10. The settings tab on the platform does not seem to load
+11. The platform always starts on the log-in screen
+12. You can search for stocks by their name and abbreviation 
+13. Save the AI chats based on the account that is logged in
+14.

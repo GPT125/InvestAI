@@ -11,6 +11,14 @@ import Financials from './pages/Financials';
 import Login from './pages/Login';
 import Watchlist from './pages/Watchlist';
 import Screener from './pages/Screener';
+import MomentumRadar from './pages/MomentumRadar';
+import SectorRotation from './pages/SectorRotation';
+import BattleArena from './pages/BattleArena';
+import VolatilityWeather from './pages/VolatilityWeather';
+import MacroPulse from './pages/MacroPulse';
+import SmartPatterns from './pages/SmartPatterns';
+import PortfolioXray from './pages/PortfolioXray';
+import InvestorQuiz from './pages/InvestorQuiz';
 import './App.css';
 
 function AppContent() {
@@ -32,6 +40,14 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/watchlist" element={<Watchlist />} />
           <Route path="/screener" element={<Screener />} />
+          <Route path="/momentum" element={<MomentumRadar />} />
+          <Route path="/rotation" element={<SectorRotation />} />
+          <Route path="/battle" element={<BattleArena />} />
+          <Route path="/weather" element={<VolatilityWeather />} />
+          <Route path="/macro" element={<MacroPulse />} />
+          <Route path="/patterns" element={<SmartPatterns />} />
+          <Route path="/xray" element={<PortfolioXray />} />
+          <Route path="/quiz" element={<InvestorQuiz />} />
         </Routes>
       </main>
     </div>
