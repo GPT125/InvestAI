@@ -1,38 +1,73 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, Search, MessageSquare, Settings, TrendingUp, PieChart, GitCompare, SlidersHorizontal, User, LogOut, X, Eye, Zap, Swords, Activity, Scan, Trophy } from 'lucide-react';
+import {
+  BarChart3, Search, MessageSquare, Settings, TrendingUp, PieChart,
+  GitCompare, SlidersHorizontal, User, LogOut, X, Eye, Zap, Swords,
+  Activity, Scan, Trophy, ChevronDown,
+} from 'lucide-react';
 import { searchStocks } from '../../api/client';
 import { formatCurrency, getChangeColor } from '../../utils/formatters';
 import { useAuth } from '../../context/AuthContext';
 import { SECTORS } from '../../utils/constants';
 
-const navItems = [
-  { path: '/', label: 'Dashboard', icon: BarChart3 },
-  { path: '/momentum', label: 'Momentum', icon: Zap },
-  { path: '/patterns', label: 'Patterns', icon: Scan },
-  { path: '/battle', label: 'Battle', icon: Swords },
-  { path: '/macro', label: 'Macro', icon: Activity },
-  { path: '/compare', label: 'Compare', icon: GitCompare },
-  { path: '/portfolio', label: 'Portfolio', icon: PieChart },
-  { path: '/watchlist', label: 'Watchlist', icon: Eye },
-  { path: '/competitions', label: 'Compete', icon: Trophy },
-  { path: '/chat', label: 'AI Chat', icon: MessageSquare },
-  { path: '/settings', label: 'Settings', icon: Settings },
+// Grouped navigation — each group has a label + sub-items
+const navGroups = [
+  {
+    label: 'Markets',
+    items: [
+      { path: '/',          label: 'Dashboard',  icon: BarChart3,  desc: 'Live market overview & indices' },
+      { path: '/momentum',  label: 'Momentum',   icon: Zap,        desc: 'Trending movers & velocity' },
+      { path: '/macro',     label: 'Macro',      icon: Activity,   desc: 'Economic indicators & pulse' },
+    ],
+  },
+  {
+    label: 'Research',
+    items: [
+      { path: '/patterns',  label: 'Patterns',   icon: Scan,       desc: 'Chart pattern recognition' },
+      { path: '/compare',   label: 'Compare',    icon: GitCompare, desc: 'Side-by-side stock analysis' },
+      { path: '/chat',      label: 'AI Chat',    icon: MessageSquare, desc: 'Ask AI about any stock' },
+    ],
+  },
+  {
+    label: 'Portfolio',
+    items: [
+      { path: '/portfolio', label: 'Portfolio',  icon: PieChart,   desc: 'Holdings & performance' },
+      { path: '/watchlist', label: 'Watchlist',  icon: Eye,        desc: 'Stocks you\'re tracking' },
+    ],
+  },
+  {
+    label: 'Games',
+    items: [
+      { path: '/battle',        label: 'Battle',    icon: Swords,  desc: 'Stock vs stock showdown' },
+      { path: '/competitions',  label: 'Compete',   icon: Trophy,  desc: 'Prediction competitions' },
+    ],
+  },
 ];
+
+// Paths that belong to each group (for active-group detection)
+const groupPaths = navGroups.reduce((acc, g) => {
+  g.items.forEach(item => { acc[item.path] = g.label; });
+  return acc;
+}, {});
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filterSector, setFilterSector] = useState('');
   const [filterType, setFilterType] = useState('');
-  const filterRef = useRef(null);
+  const [openGroup, setOpenGroup] = useState(null);
 
-  // Close filter dropdown on outside click
+  const filterRef = useRef(null);
+  const dropdownRefs = useRef({});
+  const closeTimer = useRef(null);
+
+  // Close filter on outside click
   useEffect(() => {
     const handleClick = (e) => {
       if (filterRef.current && !filterRef.current.contains(e.target)) {
@@ -43,19 +78,23 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
+  const handleGroupEnter = (label) => {
+    clearTimeout(closeTimer.current);
+    setOpenGroup(label);
+  };
+
+  const handleGroupLeave = () => {
+    closeTimer.current = setTimeout(() => setOpenGroup(null), 120);
+  };
+
   const handleSearch = async (q) => {
     setQuery(q);
     if (q.length >= 1) {
       try {
         const res = await searchStocks(q);
         let data = res.data || [];
-        // Apply filters
-        if (filterSector) {
-          data = data.filter(r => r.sector === filterSector);
-        }
-        if (filterType) {
-          data = data.filter(r => r.quoteType === filterType);
-        }
+        if (filterSector) data = data.filter(r => r.sector === filterSector);
+        if (filterType)   data = data.filter(r => r.quoteType === filterType);
         setResults(data);
         setShowResults(true);
       } catch {
@@ -80,6 +119,8 @@ export default function Navbar() {
     }
   };
 
+  const activeGroup = groupPaths[location.pathname];
+
   return (
     <nav className="navbar">
       <Link to="/" className="nav-logo">
@@ -87,7 +128,62 @@ export default function Navbar() {
         <span>StockAI</span>
       </Link>
 
-      {/* Global Search with Filter */}
+      {/* Grouped nav links */}
+      <div className="nav-links">
+        {navGroups.map((group) => {
+          const isOpen   = openGroup === group.label;
+          const isActive = activeGroup === group.label;
+
+          return (
+            <div
+              key={group.label}
+              className={`nav-group ${isActive ? 'active' : ''} ${isOpen ? 'open' : ''}`}
+              onMouseEnter={() => handleGroupEnter(group.label)}
+              onMouseLeave={handleGroupLeave}
+              ref={el => { dropdownRefs.current[group.label] = el; }}
+            >
+              {/* Top-level tab */}
+              <button className="nav-group-btn">
+                <span>{group.label}</span>
+                <ChevronDown size={13} className="nav-chevron" />
+              </button>
+
+              {/* Dropdown panel */}
+              {isOpen && (
+                <div className="nav-dropdown">
+                  {group.items.map(({ path, label, icon: Icon, desc }) => (
+                    <Link
+                      key={path}
+                      to={path}
+                      className={`nav-dropdown-item ${location.pathname === path ? 'active' : ''}`}
+                      onClick={() => setOpenGroup(null)}
+                    >
+                      <div className="nav-dropdown-icon">
+                        <Icon size={16} />
+                      </div>
+                      <div className="nav-dropdown-text">
+                        <span className="nav-dropdown-label">{label}</span>
+                        <span className="nav-dropdown-desc">{desc}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Settings — standalone */}
+        <Link
+          to="/settings"
+          className={`nav-link nav-settings-link ${location.pathname === '/settings' ? 'active' : ''}`}
+          title="Settings"
+        >
+          <Settings size={16} />
+        </Link>
+      </div>
+
+      {/* Search */}
       <div className="nav-search-wrapper">
         <div className="nav-search">
           <Search size={15} className="nav-search-icon" />
@@ -168,36 +264,23 @@ export default function Navbar() {
         )}
       </div>
 
-      <div className="nav-links">
-        {navItems.map(({ path, label, icon: Icon }) => (
-          <Link
-            key={path}
-            to={path}
-            className={`nav-link ${location.pathname === path ? 'active' : ''}`}
-          >
-            <Icon size={16} />
-            <span>{label}</span>
+      {/* Auth */}
+      {user ? (
+        <div className="nav-user">
+          <Link to="/settings" className="nav-user-profile" title="Account Settings">
+            <div className="nav-user-avatar">{(user.name || user.email)[0].toUpperCase()}</div>
+            <span className="nav-user-name">{user.name || user.email.split('@')[0]}</span>
           </Link>
-        ))}
-
-        {/* Auth */}
-        {user ? (
-          <div className="nav-user">
-            <Link to="/settings" className="nav-user-profile" title="Account Settings">
-              <div className="nav-user-avatar">{(user.name || user.email)[0].toUpperCase()}</div>
-              <span className="nav-user-name">{user.name || user.email.split('@')[0]}</span>
-            </Link>
-            <button className="nav-link nav-logout-btn" onClick={logout} title="Sign Out">
-              <LogOut size={16} />
-            </button>
-          </div>
-        ) : (
-          <Link to="/login" className="nav-link nav-login-btn">
-            <User size={16} />
-            <span>Sign In</span>
-          </Link>
-        )}
-      </div>
+          <button className="nav-link nav-logout-btn" onClick={logout} title="Sign Out">
+            <LogOut size={16} />
+          </button>
+        </div>
+      ) : (
+        <Link to="/login" className="nav-link nav-login-btn">
+          <User size={16} />
+          <span>Sign In</span>
+        </Link>
+      )}
     </nav>
   );
 }

@@ -5,12 +5,36 @@ import { useAuth } from '../context/AuthContext';
 import { Settings as SettingsIcon, Save, Bell, Clock, CheckCircle, User, Mail, Edit3, Palette } from 'lucide-react';
 
 const THEMES = [
-  { id: 'dark', label: 'Dark', bg: '#0f0f1a', primary: '#7c8cf8', card: '#16162a' },
-  { id: 'midnight', label: 'Midnight', bg: '#070d1a', primary: '#60a5fa', card: '#0d1a2e' },
-  { id: 'forest', label: 'Forest', bg: '#060f0a', primary: '#4ade80', card: '#0a1a0f' },
-  { id: 'sunset', label: 'Sunset', bg: '#0f0905', primary: '#f97316', card: '#1a100a' },
-  { id: 'purple', label: 'Violet', bg: '#0d0a1a', primary: '#a78bfa', card: '#160f2a' },
-  { id: 'rose', label: 'Rose', bg: '#110a0e', primary: '#fb7185', card: '#1e0f14' },
+  {
+    id: 'dark', label: 'Dark',
+    bg: '#0f0f1a', card: '#16162a', primary: '#7c8cf8',
+    border: '#2a2a4a', hover: '#1e1e3a', text: '#e0e0e0', muted: '#888',
+  },
+  {
+    id: 'midnight', label: 'Midnight',
+    bg: '#070d1a', card: '#0d1a2e', primary: '#60a5fa',
+    border: '#1a2a45', hover: '#0f2040', text: '#dce8f8', muted: '#7a95b8',
+  },
+  {
+    id: 'forest', label: 'Forest',
+    bg: '#060f0a', card: '#0a1a0f', primary: '#4ade80',
+    border: '#1a3025', hover: '#0e2018', text: '#d4f0db', muted: '#6a9e78',
+  },
+  {
+    id: 'sunset', label: 'Sunset',
+    bg: '#0f0905', card: '#1a100a', primary: '#f97316',
+    border: '#3a1f0a', hover: '#221408', text: '#f5dcc8', muted: '#a07050',
+  },
+  {
+    id: 'purple', label: 'Violet',
+    bg: '#0d0a1a', card: '#160f2a', primary: '#a78bfa',
+    border: '#2e1f50', hover: '#1c1435', text: '#e4d8ff', muted: '#8870b8',
+  },
+  {
+    id: 'rose', label: 'Rose',
+    bg: '#110a0e', card: '#1e0f14', primary: '#fb7185',
+    border: '#3a1520', hover: '#221018', text: '#f8d0d8', muted: '#a06070',
+  },
 ];
 
 export function applyTheme(themeId) {
@@ -19,7 +43,12 @@ export function applyTheme(themeId) {
   root.style.setProperty('--color-bg', theme.bg);
   root.style.setProperty('--color-card', theme.card);
   root.style.setProperty('--color-primary', theme.primary);
+  root.style.setProperty('--color-border', theme.border);
+  root.style.setProperty('--color-hover', theme.hover);
+  root.style.setProperty('--color-text', theme.text);
+  root.style.setProperty('--color-muted', theme.muted);
   document.body.style.background = theme.bg;
+  document.body.style.color = theme.text;
 }
 
 export default function Settings() {

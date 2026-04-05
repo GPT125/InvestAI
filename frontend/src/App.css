@@ -3139,3 +3139,166 @@ h2 { letter-spacing: -0.01em; }
 /* Smooth page transitions */
 .dashboard, .stock-detail, .settings-page, .portfolio-page { animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ============================================================
+   GROUPED DROPDOWN NAVBAR
+   ============================================================ */
+
+/* Reset nav-links for horizontal group layout */
+.nav-links {
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+/* Each group wrapper — position:relative for dropdown anchor */
+.nav-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* The top-level tab button */
+.nav-group-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  color: var(--color-muted, #888);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.nav-group-btn:hover,
+.nav-group.open .nav-group-btn {
+  color: var(--color-text, #e0e0e0);
+  background: var(--color-hover, #1e1e3a);
+}
+.nav-group.active .nav-group-btn {
+  color: var(--color-primary, #7c8cf8);
+  font-weight: 600;
+}
+
+/* Chevron rotates when open */
+.nav-chevron {
+  transition: transform 0.2s ease;
+  opacity: 0.6;
+}
+.nav-group.open .nav-chevron {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+/* Active indicator underline */
+.nav-group.active .nav-group-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-primary, #7c8cf8);
+}
+
+/* Dropdown panel */
+.nav-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 230px;
+  background: var(--color-card, #16162a);
+  border: 1px solid var(--color-border, #2a2a4a);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  padding: 6px;
+  z-index: 1000;
+  animation: dropdownIn 0.15s ease;
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)  scale(1);    }
+}
+
+/* Each item row in dropdown */
+.nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--color-text, #e0e0e0);
+  transition: background 0.12s, color 0.12s;
+}
+.nav-dropdown-item:hover {
+  background: var(--color-hover, #1e1e3a);
+}
+.nav-dropdown-item.active {
+  background: rgba(124, 140, 248, 0.12);
+  color: var(--color-primary, #7c8cf8);
+}
+.nav-dropdown-item.active .nav-dropdown-icon {
+  background: rgba(124, 140, 248, 0.18);
+  color: var(--color-primary, #7c8cf8);
+}
+
+/* Icon box */
+.nav-dropdown-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--color-hover, #1e1e3a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-muted, #888);
+  transition: background 0.12s, color 0.12s;
+}
+.nav-dropdown-item:hover .nav-dropdown-icon {
+  color: var(--color-text, #e0e0e0);
+}
+
+/* Text stack */
+.nav-dropdown-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-dropdown-label {
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1;
+}
+.nav-dropdown-desc {
+  font-size: 11px;
+  color: var(--color-muted, #888);
+  line-height: 1;
+}
+
+/* Standalone settings icon */
+.nav-settings-link {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
+  color: var(--color-muted, #888) !important;
+  background: none !important;
+  transition: color 0.15s, background 0.15s !important;
+}
+.nav-settings-link:hover,
+.nav-settings-link.active {
+  color: var(--color-primary, #7c8cf8) !important;
+  background: var(--color-hover, #1e1e3a) !important;
+}
+
