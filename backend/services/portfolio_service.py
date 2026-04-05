@@ -5,7 +5,9 @@ from datetime import datetime
 from backend.services import stock_data, cache
 from backend.services.scoring_engine import compute_score
 
-PORTFOLIO_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "portfolio.json")
+_DEFAULT_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
+_DATA_DIR = os.getenv('DATA_DIR', _DEFAULT_DATA_DIR)
+PORTFOLIO_FILE = os.path.join(_DATA_DIR, 'portfolio.json')
 
 # Default holdings from user's spreadsheet
 DEFAULT_HOLDINGS = [

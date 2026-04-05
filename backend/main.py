@@ -8,22 +8,27 @@ from backend.routers import stocks, market, scoring, news, ai, portfolio, financ
 
 app = FastAPI(title="Stock Analysis Platform", version="3.0.0")
 
-# CORS — allow local dev and production URLs
+# CORS — allow local dev + all Vercel previews + any configured origin
 allowed_origins = [
     "http://localhost:3000",
     "http://localhost:5173",
+    "https://stockai-pro.vercel.app",
 ]
-frontend_url = os.getenv("FRONTEND_URL", "")
-if frontend_url:
-    allowed_origins.append(frontend_url)
-render_url = os.getenv("RENDER_EXTERNAL_URL", "")
-if render_url:
-    allowed_origins.append(render_url)
+for _env_key in ("FRONTEND_URL", "RENDER_EXTERNAL_URL", "VERCEL_URL"):
+    _val = os.getenv(_env_key, "")
+    if _val:
+        if not _val.startswith("http"):
+            _val = f"https://{_val}"
+        if _val not in allowed_origins:
+            allowed_origins.append(_val)
+
+# On Vercel, the frontend and backend share the same origin — allow all
+_on_vercel = bool(os.getenv("VERCEL"))
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
+    allow_origins=["*"] if _on_vercel else allowed_origins,
+    allow_credentials=not _on_vercel,
     allow_methods=["*"],
     allow_headers=["*"],
 )

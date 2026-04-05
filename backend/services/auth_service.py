@@ -6,7 +6,9 @@ import jwt
 import time
 from typing import Optional, Dict
 
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'users.db')
+_DEFAULT_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
+_DATA_DIR = os.getenv('DATA_DIR', _DEFAULT_DATA_DIR)
+DB_PATH = os.path.join(_DATA_DIR, 'users.db')
 JWT_SECRET = os.getenv("JWT_SECRET", "stockai_secret_key_change_in_production")
 JWT_EXPIRY = 86400 * 7  # 7 days
 

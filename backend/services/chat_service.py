@@ -4,7 +4,8 @@ import time
 import uuid
 from typing import Optional, List, Dict
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'chats')
+_DEFAULT_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'chats')
+DATA_DIR = os.path.join(os.getenv('DATA_DIR', os.path.join(os.path.dirname(__file__), '..', '..', 'data')), 'chats')
 
 
 def _user_dir(user_id: int) -> str:

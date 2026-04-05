@@ -7,7 +7,9 @@ import time
 from typing import Optional, List, Dict
 import yfinance as yf
 
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'users.db')
+_DEFAULT_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
+_DATA_DIR = os.getenv('DATA_DIR', _DEFAULT_DATA_DIR)
+DB_PATH = os.path.join(_DATA_DIR, 'users.db')
 
 
 def _get_db():
