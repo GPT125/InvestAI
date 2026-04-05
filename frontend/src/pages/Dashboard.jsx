@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMarketOverview, getSectors, getTopStocks, getMarketSummary } from '../api/client';
 import { formatCurrency, formatChangePercent, getChangeColor, getScoreColor } from '../utils/formatters';
+import { renderMarkdown } from '../utils/markdown';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import StockCard from '../components/common/StockCard';
@@ -163,12 +164,7 @@ export default function Dashboard() {
           <p className="summary-loading-text">Generating market summary…</p>
         ) : summary ? (
           <>
-            <div className="summary-text" dangerouslySetInnerHTML={{ __html: (summary.summary || '')
-              .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-              .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-              .replace(/\*(.+?)\*/g, '<em>$1</em>')
-              .replace(/\n/g, '<br/>')
-            }} />
+            <div className="summary-text" dangerouslySetInnerHTML={{ __html: renderMarkdown(summary.summary || '') }} />
             {summary.sources && summary.sources.length > 0 && (
               <div className="summary-sources">
                 <span>Sources: </span>

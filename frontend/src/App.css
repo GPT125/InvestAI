@@ -3302,3 +3302,75 @@ h2 { letter-spacing: -0.01em; }
   background: var(--color-hover, #1e1e3a) !important;
 }
 
+
+/* ============================================================
+   SHARED MARKDOWN RENDERER STYLES
+   ============================================================ */
+.summary-text p,
+.ai-analysis p,
+.chat-message-content p,
+.md-content p {
+  margin: 0 0 10px;
+  line-height: 1.65;
+}
+.summary-text p:last-child,
+.ai-analysis p:last-child,
+.chat-message-content p:last-child { margin-bottom: 0; }
+
+/* Headers inside AI output */
+.summary-text h4, .summary-text h5,
+.ai-analysis h4,  .ai-analysis h5,
+.chat-message-content h4, .chat-message-content h5 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary, #7c8cf8);
+  margin: 14px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Lists */
+.summary-text ul, .summary-text ol,
+.ai-analysis ul,  .ai-analysis ol,
+.chat-message-content ul, .chat-message-content ol {
+  margin: 6px 0 10px 18px;
+  padding: 0;
+}
+.summary-text li,
+.ai-analysis li,
+.chat-message-content li {
+  margin-bottom: 4px;
+  line-height: 1.55;
+}
+
+/* Inline code */
+.summary-text code,
+.ai-analysis code,
+.chat-message-content code {
+  background: rgba(124,140,248,0.12);
+  color: var(--color-primary, #7c8cf8);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* Horizontal rule */
+.md-hr {
+  border: none;
+  border-top: 1px solid var(--color-border, #2a2a4a);
+  margin: 14px 0;
+}
+
+/* Blockquote */
+.md-quote {
+  border-left: 3px solid var(--color-primary, #7c8cf8);
+  padding: 4px 12px;
+  margin: 8px 0;
+  color: var(--color-muted, #888);
+  font-style: italic;
+}
+
+/* Spacer between paragraphs */
+.md-spacer { height: 6px; }
+

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { chatWithAI, getConversations, createConversation, getConversationMessages, deleteConversation, renameConversation, chatInConversation } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { MessageSquare, Send, Bot, User, Plus, Trash2, Edit3, Check, X, Clock, Sparkles, TrendingUp, BarChart3, HelpCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { renderMarkdown } from '../utils/markdown';
 
 const SUGGESTED_PROMPTS = [
   { icon: TrendingUp, text: "What are today's top performing stocks?", label: "Top Movers" },
@@ -158,97 +159,6 @@ export default function Chat() {
     return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
-  const renderMarkdown = (text) => {
-    if (!text) return '';
-    const escaped = text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-
-    const lines = escaped.split('\n');
-    let html = '';
-    let inUl = false;
-    let inOl = false;
-
-    for (let i = 0; i < lines.length; i++) {
-      let line = lines[i];
-
-      // Headers
-      if (line.startsWith('### ')) {
-        if (inUl) { html += '</ul>'; inUl = false; }
-        if (inOl) { html += '</ol>'; inOl = false; }
-        html += `<h5>${applyInline(line.slice(4))}</h5>`;
-        continue;
-      }
-      if (line.startsWith('## ')) {
-        if (inUl) { html += '</ul>'; inUl = false; }
-        if (inOl) { html += '</ol>'; inOl = false; }
-        html += `<h4>${applyInline(line.slice(3))}</h4>`;
-        continue;
-      }
-      if (line.startsWith('# ')) {
-        if (inUl) { html += '</ul>'; inUl = false; }
-        if (inOl) { html += '</ol>'; inOl = false; }
-        html += `<h4>${applyInline(line.slice(2))}</h4>`;
-        continue;
-      }
-
-      // Unordered list
-      if (/^[-*•] /.test(line)) {
-        if (inOl) { html += '</ol>'; inOl = false; }
-        if (!inUl) { html += '<ul>'; inUl = true; }
-        html += `<li>${applyInline(line.slice(2))}</li>`;
-        continue;
-      }
-
-      // Ordered list
-      const olMatch = line.match(/^(\d+)\. (.+)$/);
-      if (olMatch) {
-        if (inUl) { html += '</ul>'; inUl = false; }
-        if (!inOl) { html += '<ol>'; inOl = true; }
-        html += `<li>${applyInline(olMatch[2])}</li>`;
-        continue;
-      }
-
-      // Close any open lists
-      if (inUl) { html += '</ul>'; inUl = false; }
-      if (inOl) { html += '</ol>'; inOl = false; }
-
-      // Horizontal rule
-      if (/^---+$/.test(line.trim())) {
-        html += '<hr>';
-        continue;
-      }
-
-      // Empty line
-      if (line.trim() === '') {
-        html += '<br>';
-        continue;
-      }
-
-      // Blockquote
-      if (line.startsWith('&gt; ')) {
-        html += `<blockquote>${applyInline(line.slice(5))}</blockquote>`;
-        continue;
-      }
-
-      // Regular paragraph
-      html += `<p>${applyInline(line)}</p>`;
-    }
-
-    if (inUl) html += '</ul>';
-    if (inOl) html += '</ol>';
-    return html;
-  };
-
-  const applyInline = (text) => {
-    return text
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/_(.+?)_/g, '<em>$1</em>')
-      .replace(/`(.+?)`/g, '<code>$1</code>')
-      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-  };
 
   const isEmptyState = messages.length === 0 && !loading;
 

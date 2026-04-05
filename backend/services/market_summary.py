@@ -51,7 +51,12 @@ Write a 3-4 paragraph market summary covering:
 2. Key market drivers and notable moves
 3. What investors should watch for
 
-Keep it concise and professional. Include specific numbers."""
+Rules:
+- Do NOT use markdown headers (###, ##, #) — write in plain paragraphs only
+- Do NOT include "Sources:" or source citations in the text — sources are displayed separately
+- Do NOT start with a title line like "Market Summary for Today"
+- Use **bold** only for key figures or ticker symbols
+- Keep it concise, professional, and under 200 words total"""
 
     summary_text = ai_service.chat(prompt)
 

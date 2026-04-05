@@ -4,6 +4,7 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, R
 import { getStock, getStockHistory, getStockScore, getStockNews, analyzeStock, getETFHoldings, getExtendedHoursHistory, getIncomeStatement, getEarnings, getPerformanceComparison, getTechnicals, getStockPeers } from '../api/client';
 import { formatCurrency, formatLargeNumber, formatPercent, formatChangePercent, getChangeColor, getScoreColor } from '../utils/formatters';
 import { PERIODS } from '../utils/constants';
+import { renderMarkdown } from '../utils/markdown';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { Brain, ExternalLink, TrendingUp, TrendingDown, Clock, Target, Calendar, DollarSign, BarChart3, Activity, BarChart2, Gauge, Calculator, ChevronDown } from 'lucide-react';
 
@@ -35,21 +36,6 @@ const fmtB = (v) => {
   return `$${v.toLocaleString()}`;
 };
 
-const renderMarkdown = (text) => {
-  if (!text) return '';
-  let html = text
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`(.+?)`/g, '<code>$1</code>')
-    .replace(/^## (.+)$/gm, '<h4>$1</h4>')
-    .replace(/^### (.+)$/gm, '<h5>$1</h5>')
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/\n/g, '<br/>');
-  html = html.replace(/((?:<li>.*?<\/li><br\/>?)+)/g, '<ul>$1</ul>');
-  html = html.replace(/<ul>(.*?)<\/ul>/gs, (m, inner) => '<ul>' + inner.replace(/<br\/>/g, '') + '</ul>');
-  return html;
-};
 
 export default function StockDetail() {
   const { ticker } = useParams();
