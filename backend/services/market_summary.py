@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from backend.services import stock_data, cache, ai_service, news_service
 from backend import config
 
@@ -59,7 +59,7 @@ Keep it concise and professional. Include specific numbers."""
         "summary": summary_text,
         "indices": indices,
         "sources": sources,
-        "generatedAt": datetime.now().isoformat(),
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
     }
 
     cache.set(key, result)
