@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   BarChart3, Search, MessageSquare, Settings, TrendingUp, PieChart,
   GitCompare, SlidersHorizontal, User, LogOut, X, Eye, Zap, Swords,
-  Activity, Scan, Trophy, ChevronDown,
+  Activity, Scan, Trophy, ChevronDown, Globe, BookOpen,
 } from 'lucide-react';
 import { searchStocks } from '../../api/client';
 import { formatCurrency, getChangeColor } from '../../utils/formatters';
@@ -17,8 +17,15 @@ const navGroups = [
     label: 'Markets',
     items: [
       { path: '/',          label: 'Dashboard',  icon: BarChart3,  desc: 'Live market overview & indices' },
+      { path: '/global',    label: 'Global',     icon: Globe,      desc: 'World indices, currencies & events' },
       { path: '/momentum',  label: 'Momentum',   icon: Zap,        desc: 'Trending movers & velocity' },
       { path: '/macro',     label: 'Macro',      icon: Activity,   desc: 'Economic indicators & pulse' },
+    ],
+  },
+  {
+    label: 'Learn',
+    items: [
+      { path: '/academy',   label: 'Academy',    icon: BookOpen,   desc: 'Investing course — beginner to pro' },
     ],
   },
   {

@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from backend.routers import stocks, market, scoring, news, ai, portfolio, financials, compare, auth, watchlist, timemachine, stresstest, dividends, insights, momentum, rotation, battle, weather, macro, xray, patterns, competitions
+from backend.routers import stocks, market, scoring, news, ai, portfolio, financials, compare, auth, watchlist, timemachine, stresstest, dividends, insights, momentum, rotation, battle, weather, macro, xray, patterns, competitions, global_markets
 
 
 def _warm_cache():
@@ -87,6 +87,7 @@ app.include_router(macro.router)
 app.include_router(xray.router)
 app.include_router(patterns.router)
 app.include_router(competitions.router)
+app.include_router(global_markets.router)
 
 
 @app.get("/api/health")

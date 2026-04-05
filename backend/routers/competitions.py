@@ -33,6 +33,7 @@ def create_competition(request: Request, data: dict):
             duration_days=data.get("duration_days", 30),
             starting_budget=float(data.get("starting_budget", 10000)),
             include_ai=bool(data.get("include_ai", False)),
+            is_private=bool(data.get("is_private", False)),
         )
         return comp
     except Exception as e:

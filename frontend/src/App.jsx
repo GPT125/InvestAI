@@ -17,6 +17,7 @@ import MacroPulse from './pages/MacroPulse';
 import SmartPatterns from './pages/SmartPatterns';
 import Competitions from './pages/Competitions';
 import CompetitionDetail from './pages/CompetitionDetail';
+import GlobalMarkets from './pages/GlobalMarkets';
 import './App.css';
 
 /** Polls /api/health and shows a banner if the server is cold-starting. */
@@ -104,6 +105,7 @@ function AppContent() {
           <Route path="/patterns" element={<ProtectedRoute><SmartPatterns /></ProtectedRoute>} />
           <Route path="/competitions" element={<ProtectedRoute><Competitions /></ProtectedRoute>} />
           <Route path="/competitions/:id" element={<ProtectedRoute><CompetitionDetail /></ProtectedRoute>} />
+          <Route path="/global" element={<ProtectedRoute><GlobalMarkets /></ProtectedRoute>} />
 
           {/* Redirects */}
           <Route path="/screener" element={<Navigate to="/" replace />} />

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trophy, Plus, Users, Clock, DollarSign, TrendingUp, TrendingDown, Copy, Check, Bot, X, ChevronRight, Flame, Medal } from 'lucide-react';
+import { Trophy, Plus, Users, Clock, DollarSign, TrendingUp, TrendingDown, Copy, Check, Bot, X, ChevronRight, Flame, Medal, Lock, Globe } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrency, formatChangePercent, getChangeColor } from '../utils/formatters';
 import api from '../api/client';
@@ -28,6 +28,7 @@ function CreateModal({ onClose, onCreated }) {
   const [duration, setDuration] = useState(30);
   const [budget, setBudget] = useState(10000);
   const [includeAI, setIncludeAI] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -36,7 +37,7 @@ function CreateModal({ onClose, onCreated }) {
     setLoading(true);
     setError('');
     try {
-      const res = await api.post('/competitions', { name: name.trim(), duration_days: duration, starting_budget: budget, include_ai: includeAI });
+      const res = await api.post('/competitions', { name: name.trim(), duration_days: duration, starting_budget: budget, include_ai: includeAI, is_private: isPrivate });
       onCreated(res.data);
       onClose();
     } catch (e) {
@@ -98,6 +99,33 @@ function CreateModal({ onClose, onCreated }) {
           </div>
 
           <div className="form-group">
+            <label>Visibility</label>
+            <div className="option-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+              <button
+                className={`option-btn ${isPrivate ? 'active' : ''}`}
+                onClick={() => setIsPrivate(true)}
+                type="button"
+              >
+                <Lock size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                Private (invite only)
+              </button>
+              <button
+                className={`option-btn ${!isPrivate ? 'active' : ''}`}
+                onClick={() => setIsPrivate(false)}
+                type="button"
+              >
+                <Globe size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                Public
+              </button>
+            </div>
+            <p style={{ fontSize: 12, color: '#888', margin: '6px 0 0' }}>
+              {isPrivate
+                ? 'Only people with the invite link can see or join this competition.'
+                : 'Anyone on the platform can discover and join this competition.'}
+            </p>
+          </div>
+
+          <div className="form-group">
             <label className="checkbox-label" style={{ cursor: 'pointer' }}>
               <input
                 type="checkbox"
@@ -108,7 +136,8 @@ function CreateModal({ onClose, onCreated }) {
               <div>
                 <span style={{ color: '#e0e0e0', fontWeight: 500 }}>Challenge the AI Bot</span>
                 <p style={{ fontSize: 12, color: '#888', margin: '2px 0 0' }}>
-                  Compete against our AI which analyzes all available market data to make trades
+                  Compete against our AI which analyzes every available data point — fundamentals,
+                  technicals, momentum, and risk — then trades and rebalances automatically.
                 </p>
               </div>
             </label>
@@ -155,6 +184,11 @@ function CompetitionCard({ comp, onJoin, currentUserId }) {
           <h3 className="comp-name">{comp.name}</h3>
           <div className="comp-meta">
             <span className={`comp-status status-${comp.status}`}>{comp.status}</span>
+            {comp.is_private ? (
+              <span className="comp-days" title="Private — invite only"><Lock size={11} /> Private</span>
+            ) : (
+              <span className="comp-days"><Globe size={11} /> Public</span>
+            )}
             {daysLeft !== null && isActive && (
               <span className="comp-days"><Clock size={12} /> {daysLeft}d left</span>
             )}
