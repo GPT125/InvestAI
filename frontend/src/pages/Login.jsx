@@ -34,6 +34,8 @@ function LoginForm() {
   const [verificationEmail, setVerificationEmail] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [devCode, setDevCode] = useState('');
+  const [verifyNotice, setVerifyNotice] = useState('');
 
   // Countdown for resend button
   useEffect(() => {
@@ -75,6 +77,16 @@ function LoginForm() {
         setVerificationEmail(result.email || email);
         setVerificationStep(true);
         setResendCooldown(60);
+        if (result.dev_mode && result.dev_code) {
+          setDevCode(result.dev_code);
+          setVerifyNotice('Dev mode: email service not configured. Your code is shown below.');
+        } else if (result.error_sending) {
+          setDevCode('');
+          setError(result.error_sending);
+        } else if (result.email_sent) {
+          setDevCode('');
+          setVerifyNotice('');
+        }
         return;
       }
 
@@ -107,9 +119,18 @@ function LoginForm() {
   const handleResendCode = async () => {
     if (resendCooldown > 0) return;
     setError('');
+    setVerifyNotice('');
     try {
-      await resendVerification(verificationEmail);
+      const res = await resendVerification(verificationEmail);
       setResendCooldown(60);
+      if (res?.dev_mode && res?.dev_code) {
+        setDevCode(res.dev_code);
+        setVerifyNotice('Dev mode: email service not configured. Your code is shown below.');
+      } else if (res?.error_sending) {
+        setError(res.error_sending);
+      } else {
+        setVerifyNotice('A new code has been sent to your email.');
+      }
     } catch (err) {
       setError(err.message || 'Failed to resend code');
     }
@@ -178,6 +199,52 @@ function LoginForm() {
                 <p style={{ textAlign: 'center', fontSize: 12, color: '#666', marginBottom: 20 }}>
                   Expires in 15 minutes · Check your spam folder if you don't see it
                 </p>
+
+                {devCode && (
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '12px 16px',
+                    background: 'rgba(250,204,21,0.08)',
+                    border: '1px solid rgba(250,204,21,0.3)',
+                    borderRadius: 10,
+                    marginBottom: 16,
+                  }}>
+                    <div style={{ fontSize: 11, color: '#facc15', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>
+                      Dev mode — Your code
+                    </div>
+                    <div style={{
+                      fontSize: 22,
+                      fontWeight: 700,
+                      letterSpacing: 6,
+                      color: '#facc15',
+                      fontFamily: 'monospace',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => setVerificationCode(devCode)}
+                    title="Click to fill"
+                    >
+                      {devCode}
+                    </div>
+                    <div style={{ fontSize: 11, color: '#a16207', marginTop: 6 }}>
+                      Email service not configured. Click the code to auto-fill.
+                    </div>
+                  </div>
+                )}
+
+                {verifyNotice && !devCode && (
+                  <div style={{
+                    padding: '10px 14px',
+                    background: 'rgba(34,197,94,0.08)',
+                    border: '1px solid rgba(34,197,94,0.3)',
+                    borderRadius: 10,
+                    color: '#22c55e',
+                    fontSize: 13,
+                    textAlign: 'center',
+                    marginBottom: 16,
+                  }}>
+                    {verifyNotice}
+                  </div>
+                )}
 
                 {error && (
                   <div className="login-error">

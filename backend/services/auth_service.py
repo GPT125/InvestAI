@@ -55,8 +55,8 @@ def _generate_code() -> str:
     return str(random.randint(10000000, 99999999))
 
 
-def _send_verification_email(email: str, code: str, name: str = "") -> bool:
-    """Send an 8-digit verification code to the user's email via SMTP."""
+def _send_verification_email(email: str, code: str, name: str = "") -> tuple:
+    """Send an 8-digit verification code via SMTP. Returns (ok, error_message)."""
     from backend import config
 
     smtp_host = config.SMTP_HOST
@@ -68,50 +68,90 @@ def _send_verification_email(email: str, code: str, name: str = "") -> bool:
     if not smtp_host or not smtp_user or not smtp_pass:
         # Dev mode — print code to console so you can test without SMTP
         print(f"[Auth] ⚠ SMTP not configured. Verification code for {email}: {code}")
-        return False
+        return False, "smtp_not_configured"
 
-    greeting = f"Hi {name}," if name else "Hi,"
+    display_name = name.strip() if name else email.split("@")[0]
+    spaced_code = " ".join(list(code))  # "9 4 7 2 0 4 0 5"
     html_body = f"""
 <!DOCTYPE html>
 <html>
-<body style="margin:0;padding:0;background:#0a0a14;font-family:Arial,sans-serif;">
-  <div style="max-width:520px;margin:40px auto;background:#13132a;border:1px solid #2a2a4a;border-radius:14px;padding:36px;">
-    <div style="margin-bottom:24px;">
-      <span style="font-size:22px;font-weight:700;color:#7c8cf8;">📈 InvestAI</span>
-    </div>
-    <h2 style="color:#e0e0e0;margin:0 0 8px;">Verify Your Email</h2>
-    <p style="color:#888;margin:0 0 28px;font-size:15px;">{greeting} Thanks for signing up — enter the code below to activate your account.</p>
+<body style="margin:0;padding:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#1f2328;">
+  <div style="max-width:560px;margin:40px auto;padding:32px 24px;text-align:center;">
 
-    <div style="background:#0f0f1a;border:1px solid #2a2a4a;border-radius:10px;padding:28px;text-align:center;margin-bottom:28px;">
-      <p style="color:#888;font-size:13px;margin:0 0 12px;">Your verification code</p>
-      <span style="font-size:42px;font-weight:700;letter-spacing:10px;color:#7c8cf8;font-family:monospace;">{code}</span>
-      <p style="color:#666;font-size:12px;margin:12px 0 0;">Expires in 15 minutes</p>
+    <div style="margin-bottom:20px;">
+      <span style="display:inline-block;width:40px;height:40px;line-height:40px;border-radius:8px;background:#0d1117;color:#ffffff;font-size:22px;font-weight:800;">I</span>
     </div>
 
-    <p style="color:#666;font-size:13px;margin:0;">If you didn't create a InvestAI account, you can safely ignore this email.</p>
+    <h1 style="font-size:22px;font-weight:600;color:#1f2328;margin:0 0 28px;">
+      Please verify your identity, <strong>{display_name}</strong>
+    </h1>
+
+    <div style="border:1px solid #d0d7de;border-radius:10px;padding:28px 24px;text-align:left;">
+      <p style="margin:0 0 18px;color:#1f2328;font-size:15px;">
+        Here is your InvestAI email verification code:
+      </p>
+
+      <div style="text-align:center;margin:10px 0 24px;">
+        <span style="font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:30px;font-weight:600;color:#1f2328;letter-spacing:4px;">{spaced_code}</span>
+      </div>
+
+      <p style="margin:0 0 16px;color:#1f2328;font-size:14px;">
+        This code is valid for <strong>15 minutes</strong> and can only be used once.
+      </p>
+
+      <p style="margin:0 0 16px;color:#1f2328;font-size:14px;">
+        <strong>Please don't share this code with anyone:</strong> we'll never ask for it on the phone or via email.
+      </p>
+
+      <p style="margin:0;color:#1f2328;font-size:14px;">
+        Thanks,<br/>The InvestAI Team
+      </p>
+    </div>
+
+    <p style="margin:24px 0 0;color:#656d76;font-size:12px;line-height:1.5;">
+      You're receiving this email because a verification code was requested for your InvestAI account. If this wasn't you, please ignore this email.
+    </p>
+
+    <p style="margin:18px 0 0;color:#8c959f;font-size:12px;">
+      InvestAI · AI-Powered Stock Analysis
+    </p>
   </div>
 </body>
 </html>
 """
-    text_body = f"Your InvestAI verification code is: {code}\n\nThis code expires in 15 minutes."
+    text_body = (
+        f"Please verify your identity, {display_name}\n\n"
+        f"Here is your InvestAI email verification code:\n\n"
+        f"    {spaced_code}\n\n"
+        "This code is valid for 15 minutes and can only be used once.\n"
+        "Please don't share this code with anyone — we'll never ask for it on the phone or via email.\n\n"
+        "Thanks,\nThe InvestAI Team\n"
+    )
 
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"InvestAI — Your verification code: {code}"
+    msg["Subject"] = f"[InvestAI] Email verification code"
     msg["From"] = f"InvestAI <{smtp_from}>"
     msg["To"] = email
     msg.attach(MIMEText(text_body, "plain"))
     msg.attach(MIMEText(html_body, "html"))
 
     try:
-        with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=15) as server:
+            server.ehlo()
             server.starttls()
+            server.ehlo()
             server.login(smtp_user, smtp_pass)
             server.sendmail(smtp_from, email, msg.as_string())
         print(f"[Auth] Verification email sent to {email}")
-        return True
+        return True, ""
+    except smtplib.SMTPAuthenticationError as e:
+        err = f"smtp_auth_failed: {e}"
+        print(f"[Auth] SMTP auth failed for {email}: {e}")
+        return False, err
     except Exception as e:
+        err = f"smtp_send_failed: {e}"
         print(f"[Auth] Failed to send email to {email}: {e}")
-        return False
+        return False, err
 
 
 def register(email: str, password: str, name: str = "") -> Dict:
@@ -149,7 +189,17 @@ def register(email: str, password: str, name: str = "") -> Dict:
 
 
 def _store_and_send_code(email: str, name: str = "") -> Dict:
-    """Generate a code, store it, send the email, return pending status."""
+    """Generate a code, store it, send the email, return pending status.
+
+    Behavior:
+    - If SMTP is configured and send succeeds → email_sent=True.
+    - If SMTP is NOT configured → email_sent=False, and dev_code is returned
+      so the UI can surface the code (dev / test mode).
+    - If SMTP IS configured but the send fails → email_sent=False with an
+      error message so the user knows delivery failed.
+    """
+    from backend import config
+
     code = _generate_code()
     expires = time.time() + CODE_EXPIRY
     conn = _get_db()
@@ -159,12 +209,35 @@ def _store_and_send_code(email: str, name: str = "") -> Dict:
     )
     conn.commit()
     conn.close()
-    sent = _send_verification_email(email, code, name)
-    return {
+
+    sent, err = _send_verification_email(email, code, name)
+
+    response = {
         "pending_verification": True,
         "email": email,
         "email_sent": sent,
     }
+
+    smtp_configured = bool(config.SMTP_HOST and config.SMTP_USER and config.SMTP_PASS)
+
+    if not sent:
+        if not smtp_configured:
+            # Dev / unconfigured — surface the code so the user can verify.
+            # This only fires when SMTP env vars are not set; on production
+            # you MUST set SMTP_HOST / SMTP_USER / SMTP_PASS in Render.
+            response["dev_mode"] = True
+            response["dev_code"] = code
+            response["message"] = (
+                "Email service is not configured. Showing code here for testing."
+            )
+        else:
+            response["error_sending"] = (
+                "We couldn't deliver the verification email. Please try again "
+                "or contact support."
+            )
+            response["error_detail"] = err
+
+    return response
 
 
 def verify_email(email: str, code: str) -> Dict:
@@ -240,13 +313,9 @@ def login(email: str, password: str) -> Dict:
             return {"error": "Invalid email or password"}
 
         if not user["email_verified"]:
-            # Resend code and prompt verification
-            _store_and_send_code(email, user["name"] or "")
-            return {
-                "pending_verification": True,
-                "email": email,
-                "email_sent": True,
-            }
+            # Resend code and prompt verification — return the full response
+            # shape (including dev_code / error_sending) so the UI can react.
+            return _store_and_send_code(email, user["name"] or "")
 
         token = _create_token(user["id"], user["email"])
         settings = json.loads(user["settings"]) if user["settings"] else {}
