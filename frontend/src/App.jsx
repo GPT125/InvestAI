@@ -18,6 +18,9 @@ import SmartPatterns from './pages/SmartPatterns';
 import Competitions from './pages/Competitions';
 import CompetitionDetail from './pages/CompetitionDetail';
 import GlobalMarkets from './pages/GlobalMarkets';
+import Academy from './pages/Academy';
+import AcademyModule from './pages/AcademyModule';
+import AcademyLesson from './pages/AcademyLesson';
 import './App.css';
 
 /** Polls /api/health and shows a banner if the server is cold-starting. */
@@ -106,6 +109,9 @@ function AppContent() {
           <Route path="/competitions" element={<ProtectedRoute><Competitions /></ProtectedRoute>} />
           <Route path="/competitions/:id" element={<ProtectedRoute><CompetitionDetail /></ProtectedRoute>} />
           <Route path="/global" element={<ProtectedRoute><GlobalMarkets /></ProtectedRoute>} />
+          <Route path="/academy" element={<ProtectedRoute><Academy /></ProtectedRoute>} />
+          <Route path="/academy/:moduleId" element={<ProtectedRoute><AcademyModule /></ProtectedRoute>} />
+          <Route path="/academy/:moduleId/:lessonId" element={<ProtectedRoute><AcademyLesson /></ProtectedRoute>} />
 
           {/* Redirects */}
           <Route path="/screener" element={<Navigate to="/" replace />} />
