@@ -8,7 +8,7 @@ import { renderMarkdown } from '../utils/markdown';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { Brain, ExternalLink, TrendingUp, TrendingDown, Clock, Target, Calendar, DollarSign, BarChart3, Activity, BarChart2, Gauge, Calculator, ChevronDown } from 'lucide-react';
 
-const COLORS = ['#7c8cf8', '#22c55e', '#ef4444', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1'];
+const COLORS = ['var(--color-primary, #7c8cf8)', '#22c55e', '#ef4444', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1'];
 
 const SCORE_KEYS_STOCK = [
   { key: 'valuation', label: 'Valuation' },
@@ -733,7 +733,7 @@ export default function StockDetail() {
                 </div>
                 <div style={{ width: '100%', height: 8, background: '#222', borderRadius: 4, position: 'relative', marginTop: 8 }}>
                   <div style={{
-                    position: 'absolute', top: -4, width: 16, height: 16, background: '#7c8cf8',
+                    position: 'absolute', top: -4, width: 16, height: 16, background: 'var(--color-primary, #7c8cf8)',
                     borderRadius: '50%', transform: 'translateX(-50%)',
                     left: `${Math.min(Math.max((technicals.bollinger?.position || 0.5) * 100, 0), 100)}%`,
                     boxShadow: '0 0 6px rgba(124,140,248,0.5)',
@@ -923,13 +923,13 @@ export default function StockDetail() {
             <tbody>
               {etfHoldings.holdings.map((h, i) => (
                 <tr key={i} className="clickable-row" onClick={() => h.symbol && navigate(`/stock/${h.symbol}`)}>
-                  <td><strong style={{ color: '#7c8cf8' }}>{h.symbol || '—'}</strong></td>
+                  <td><strong style={{ color: 'var(--color-primary, #7c8cf8)' }}>{h.symbol || '—'}</strong></td>
                   <td style={{ color: '#ccc' }}>{h.name}</td>
                   <td style={{ textAlign: 'right' }}>
                     {h.weight ? (
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ display: 'inline-block', width: 60, height: 6, background: '#1e1e3a', borderRadius: 3, overflow: 'hidden' }}>
-                          <span style={{ display: 'block', height: '100%', width: `${Math.min(h.weight * 5, 100)}%`, background: '#7c8cf8', borderRadius: 3 }} />
+                          <span style={{ display: 'block', height: '100%', width: `${Math.min(h.weight * 5, 100)}%`, background: 'var(--color-primary, #7c8cf8)', borderRadius: 3 }} />
                         </span>
                         <span style={{ fontWeight: 600 }}>{h.weight}%</span>
                       </span>

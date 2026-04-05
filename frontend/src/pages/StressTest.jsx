@@ -8,7 +8,7 @@ const StressTest = () => {
     background: '#0d0d1a',
     card: '#16162a',
     border: '#2a2a4a',
-    accent: '#7c8cf8',
+    accent: 'var(--color-primary, #7c8cf8)',
     green: '#22c55e',
     red: '#ef4444',
     text: '#e5e5e9',

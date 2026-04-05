@@ -5,7 +5,7 @@ import { formatCurrency, formatLargeNumber, formatPercent, formatChangePercent, 
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { GitCompare, Plus, X, Brain, TrendingUp, Search } from 'lucide-react';
 
-const COLORS = ['#7c8cf8', '#22c55e', '#ef4444', '#f59e0b', '#8b5cf6'];
+const COLORS = ['var(--color-primary, #7c8cf8)', '#22c55e', '#ef4444', '#f59e0b', '#8b5cf6'];
 const PERIODS = [
   { label: '1M', value: '1mo' },
   { label: '3M', value: '3mo' },

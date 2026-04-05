@@ -54,7 +54,7 @@ const Insights = () => {
                 border: 'none',
                 borderRadius: '6px',
                 cursor: 'pointer',
-                backgroundColor: isActive ? '#7c8cf8' : 'transparent',
+                backgroundColor: isActive ? 'var(--color-primary, #7c8cf8)' : 'transparent',
                 color: isActive ? '#0d0d1a' : '#9999bb',
                 transition: 'all 0.3s ease',
               }}
@@ -344,7 +344,7 @@ const SectorHeatmapTab = () => {
               fontWeight: '500',
               border: '1px solid #2a2a4a',
               borderRadius: '6px',
-              backgroundColor: sortBy === period ? '#7c8cf8' : '#16162a',
+              backgroundColor: sortBy === period ? 'var(--color-primary, #7c8cf8)' : '#16162a',
               color: sortBy === period ? '#0d0d1a' : '#9999bb',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
@@ -546,7 +546,7 @@ const StockDNATab = () => {
               onClick={handleSearch}
               style={{
                 padding: '10px 16px',
-                backgroundColor: '#7c8cf8',
+                backgroundColor: 'var(--color-primary, #7c8cf8)',
                 color: '#0d0d1a',
                 border: 'none',
                 borderRadius: '6px',
@@ -585,7 +585,7 @@ const StockDNATab = () => {
               onClick={handleSecondSearch}
               style={{
                 padding: '10px 16px',
-                backgroundColor: '#7c8cf8',
+                backgroundColor: 'var(--color-primary, #7c8cf8)',
                 color: '#0d0d1a',
                 border: 'none',
                 borderRadius: '6px',
@@ -658,11 +658,11 @@ const StockDNATab = () => {
                       <div style={{
                         height: '100%',
                         width: `${dim.value}%`,
-                        backgroundColor: '#7c8cf8',
+                        backgroundColor: 'var(--color-primary, #7c8cf8)',
                       }} />
                     </div>
                   </div>
-                  <span style={{ fontSize: '12px', fontWeight: '600', color: '#7c8cf8', minWidth: '30px', textAlign: 'right' }}>
+                  <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-primary, #7c8cf8)', minWidth: '30px', textAlign: 'right' }}>
                     {dim.value}
                   </span>
                 </div>
@@ -741,7 +741,7 @@ const EarningsTab = () => {
           onClick={handleSearch}
           style={{
             padding: '10px 16px',
-            backgroundColor: '#7c8cf8',
+            backgroundColor: 'var(--color-primary, #7c8cf8)',
             color: '#0d0d1a',
             border: 'none',
             borderRadius: '6px',
@@ -788,7 +788,7 @@ const EarningsTab = () => {
               padding: '20px',
             }}>
               <div style={{ fontSize: '12px', color: '#9999bb', marginBottom: '8px' }}>Current Streak</div>
-              <div style={{ fontSize: '32px', fontWeight: '700', color: '#7c8cf8' }}>
+              <div style={{ fontSize: '32px', fontWeight: '700', color: 'var(--color-primary, #7c8cf8)' }}>
                 {data.current_streak}
               </div>
               <div style={{ fontSize: '12px', color: '#9999bb', marginTop: '4px' }}>
@@ -959,7 +959,7 @@ const InsiderTab = () => {
           onClick={handleSearch}
           style={{
             padding: '10px 16px',
-            backgroundColor: '#7c8cf8',
+            backgroundColor: 'var(--color-primary, #7c8cf8)',
             color: '#0d0d1a',
             border: 'none',
             borderRadius: '6px',
@@ -1156,7 +1156,7 @@ const PriceTargetsTab = () => {
           onClick={handleSearch}
           style={{
             padding: '10px 16px',
-            backgroundColor: '#7c8cf8',
+            backgroundColor: 'var(--color-primary, #7c8cf8)',
             color: '#0d0d1a',
             border: 'none',
             borderRadius: '6px',
@@ -1224,7 +1224,7 @@ const PriceTargetsTab = () => {
                   left: `${((data.current_price - data.target_low) / (data.target_high - data.target_low)) * 100}%`,
                   width: '2px',
                   height: '120%',
-                  backgroundColor: '#7c8cf8',
+                  backgroundColor: 'var(--color-primary, #7c8cf8)',
                   boxShadow: '0 0 8px rgba(124, 140, 248, 0.5)',
                 }} />
 
@@ -1272,7 +1272,7 @@ const PriceTargetsTab = () => {
                   <span style={{ color: '#9999bb' }}>Mean Target: ${data.target_mean}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ width: '12px', height: '12px', backgroundColor: '#7c8cf8', borderRadius: '2px' }} />
+                  <div style={{ width: '12px', height: '12px', backgroundColor: 'var(--color-primary, #7c8cf8)', borderRadius: '2px' }} />
                   <span style={{ color: '#9999bb' }}>Current Price: ${data.current_price}</span>
                 </div>
               </div>
@@ -1291,7 +1291,7 @@ const PriceTargetsTab = () => {
                 textAlign: 'center',
               }}>
                 <div style={{ fontSize: '12px', color: '#9999bb', marginBottom: '8px' }}>Current Price</div>
-                <div style={{ fontSize: '24px', fontWeight: '700', color: '#7c8cf8' }}>
+                <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--color-primary, #7c8cf8)' }}>
                   ${data.current_price.toFixed(2)}
                 </div>
               </div>
@@ -1459,7 +1459,7 @@ const CompatibilityTab = () => {
         onClick={handleSearch}
         style={{
           padding: '10px 16px',
-          backgroundColor: '#7c8cf8',
+          backgroundColor: 'var(--color-primary, #7c8cf8)',
           color: '#0d0d1a',
           border: 'none',
           borderRadius: '6px',
@@ -1673,7 +1673,7 @@ const LoadingState = () => (
         width: '40px',
         height: '40px',
         border: '3px solid #2a2a4a',
-        borderTopColor: '#7c8cf8',
+        borderTopColor: 'var(--color-primary, #7c8cf8)',
         borderRadius: '50%',
         animation: 'spin 1s linear infinite',
         margin: '0 auto 16px',

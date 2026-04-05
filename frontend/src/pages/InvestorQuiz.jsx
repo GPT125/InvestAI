@@ -78,7 +78,7 @@ const QUESTIONS = [
 ];
 
 const INVESTOR_TYPES = [
-  { name: "The Momentum Surfer", icon: Zap, color: '#7c8cf8', condition: (s) => s.momentum >= 4 && s.risk >= 3,
+  { name: "The Momentum Surfer", icon: Zap, color: 'var(--color-primary, #7c8cf8)', condition: (s) => s.momentum >= 4 && s.risk >= 3,
     desc: "You ride trends and capture momentum. Quick to act, you thrive in fast markets. Watch out for whipsaws and remember to take profits.",
     strategy: "Focus: Technical analysis, trend-following, breakout trading. Ideal tools: Momentum Radar, Smart Pattern Scanner.",
   },

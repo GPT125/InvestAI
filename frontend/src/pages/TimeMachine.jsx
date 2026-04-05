@@ -108,7 +108,7 @@ const TimeMachine = () => {
       transition: 'border-color 0.3s ease',
     },
     inputFocus: {
-      borderColor: '#7c8cf8',
+      borderColor: 'var(--color-primary, #7c8cf8)',
       outline: 'none',
     },
     checkboxContainer: {
@@ -121,7 +121,7 @@ const TimeMachine = () => {
       width: '20px',
       height: '20px',
       cursor: 'pointer',
-      accentColor: '#7c8cf8',
+      accentColor: 'var(--color-primary, #7c8cf8)',
     },
     checkboxLabel: {
       fontSize: '14px',
@@ -132,7 +132,7 @@ const TimeMachine = () => {
     button: {
       width: '100%',
       padding: '12px 24px',
-      backgroundColor: '#7c8cf8',
+      backgroundColor: 'var(--color-primary, #7c8cf8)',
       color: '#ffffff',
       border: 'none',
       borderRadius: '8px',
@@ -169,7 +169,7 @@ const TimeMachine = () => {
     },
     resultLabel: {
       fontSize: '12px',
-      color: '#7c8cf8',
+      color: 'var(--color-primary, #7c8cf8)',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       marginBottom: '8px',
@@ -248,7 +248,7 @@ const TimeMachine = () => {
     },
     milestoneDate: {
       fontSize: '13px',
-      color: '#7c8cf8',
+      color: 'var(--color-primary, #7c8cf8)',
       fontWeight: '600',
     },
     milestonePrice: {
@@ -276,7 +276,7 @@ const TimeMachine = () => {
       width: '20px',
       height: '20px',
       border: '3px solid #2a2a4a',
-      borderTopColor: '#7c8cf8',
+      borderTopColor: 'var(--color-primary, #7c8cf8)',
       borderRadius: '50%',
       animation: 'spin 0.8s linear infinite',
     },

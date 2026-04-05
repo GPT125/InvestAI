@@ -7,33 +7,33 @@ import { Settings as SettingsIcon, Save, Bell, Clock, CheckCircle, User, Mail, E
 const THEMES = [
   {
     id: 'dark', label: 'Dark',
-    bg: '#0f0f1a', card: '#16162a', primary: '#7c8cf8',
-    border: '#2a2a4a', hover: '#1e1e3a', text: '#e0e0e0', muted: '#888',
+    bg: '#0f0f1a', card: '#16162a', primary: '#7c8cf8', primaryRgb: '124, 140, 248',
+    border: '#28284a', hover: '#1e1e38', text: '#e8e8f2', textSecondary: '#b0b0cc', muted: '#7878a0',
   },
   {
     id: 'midnight', label: 'Midnight',
-    bg: '#070d1a', card: '#0d1a2e', primary: '#60a5fa',
-    border: '#1a2a45', hover: '#0f2040', text: '#dce8f8', muted: '#7a95b8',
+    bg: '#060d1a', card: '#0d1b30', primary: '#60a5fa', primaryRgb: '96, 165, 250',
+    border: '#1a2e48', hover: '#122040', text: '#d8eafc', textSecondary: '#90b8e0', muted: '#6090b8',
   },
   {
     id: 'forest', label: 'Forest',
-    bg: '#060f0a', card: '#0a1a0f', primary: '#4ade80',
-    border: '#1a3025', hover: '#0e2018', text: '#d4f0db', muted: '#6a9e78',
+    bg: '#080f09', card: '#0e1c10', primary: '#4ade80', primaryRgb: '74, 222, 128',
+    border: '#1c3020', hover: '#122018', text: '#d4f0da', textSecondary: '#8ec89a', muted: '#5a9068',
   },
   {
     id: 'sunset', label: 'Sunset',
-    bg: '#0f0905', card: '#1a100a', primary: '#f97316',
-    border: '#3a1f0a', hover: '#221408', text: '#f5dcc8', muted: '#a07050',
+    bg: '#100906', card: '#1c100a', primary: '#fb923c', primaryRgb: '251, 146, 60',
+    border: '#38200c', hover: '#241508', text: '#f2dcc8', textSecondary: '#c8a080', muted: '#9a7050',
   },
   {
     id: 'purple', label: 'Violet',
-    bg: '#0d0a1a', card: '#160f2a', primary: '#a78bfa',
-    border: '#2e1f50', hover: '#1c1435', text: '#e4d8ff', muted: '#8870b8',
+    bg: '#0c0a1a', card: '#14112a', primary: '#a78bfa', primaryRgb: '167, 139, 250',
+    border: '#2c2050', hover: '#1a1538', text: '#e2d8ff', textSecondary: '#a890d8', muted: '#8068b0',
   },
   {
     id: 'rose', label: 'Rose',
-    bg: '#110a0e', card: '#1e0f14', primary: '#fb7185',
-    border: '#3a1520', hover: '#221018', text: '#f8d0d8', muted: '#a06070',
+    bg: '#100a0d', card: '#1c1018', primary: '#f472b6', primaryRgb: '244, 114, 182',
+    border: '#381528', hover: '#241018', text: '#f5d0e4', textSecondary: '#c090a8', muted: '#906878',
   },
 ];
 
@@ -43,9 +43,11 @@ export function applyTheme(themeId) {
   root.style.setProperty('--color-bg', theme.bg);
   root.style.setProperty('--color-card', theme.card);
   root.style.setProperty('--color-primary', theme.primary);
+  root.style.setProperty('--color-primary-rgb', theme.primaryRgb);
   root.style.setProperty('--color-border', theme.border);
   root.style.setProperty('--color-hover', theme.hover);
   root.style.setProperty('--color-text', theme.text);
+  root.style.setProperty('--color-text-secondary', theme.textSecondary);
   root.style.setProperty('--color-muted', theme.muted);
   document.body.style.background = theme.bg;
   document.body.style.color = theme.text;

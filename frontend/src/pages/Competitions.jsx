@@ -103,7 +103,7 @@ function CreateModal({ onClose, onCreated }) {
                 type="checkbox"
                 checked={includeAI}
                 onChange={e => setIncludeAI(e.target.checked)}
-                style={{ width: 18, height: 18, accentColor: '#7c8cf8' }}
+                style={{ width: 18, height: 18, accentColor: 'var(--color-primary, #7c8cf8)' }}
               />
               <div>
                 <span style={{ color: '#e0e0e0', fontWeight: 500 }}>Challenge the AI Bot</span>
@@ -284,7 +284,7 @@ export default function Competitions() {
     return (
       <div className="competitions-page">
         <div className="comp-empty" style={{ marginTop: 60 }}>
-          <Trophy size={48} style={{ color: '#7c8cf8', opacity: 0.4 }} />
+          <Trophy size={48} style={{ color: 'var(--color-primary, #7c8cf8)', opacity: 0.4 }} />
           <h2>Stock Trading Competitions</h2>
           <p>Sign in to create or join competitions and compete against friends or the AI.</p>
           <button className="create-comp-btn" onClick={() => navigate('/login')}>
@@ -324,7 +324,7 @@ export default function Competitions() {
           </div>
         </div>
         <div className="comp-info-item">
-          <Bot size={20} style={{ color: '#7c8cf8' }} />
+          <Bot size={20} style={{ color: 'var(--color-primary, #7c8cf8)' }} />
           <div>
             <strong>AI Challenge</strong>
             <p>Optionally compete against our AI that analyzes all market data</p>
@@ -352,7 +352,7 @@ export default function Competitions() {
         <div className="comp-loading">Loading competitions...</div>
       ) : displayed.length === 0 ? (
         <div className="comp-empty">
-          <Trophy size={48} style={{ color: '#7c8cf8', opacity: 0.3 }} />
+          <Trophy size={48} style={{ color: 'var(--color-primary, #7c8cf8)', opacity: 0.3 }} />
           <h3>{activeTab === 'my' ? 'No competitions yet' : 'No open competitions'}</h3>
           <p>{activeTab === 'my' ? 'Create a competition and invite friends!' : 'All competitions require an invite link.'}</p>
           {activeTab === 'my' && (

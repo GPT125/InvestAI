@@ -88,7 +88,7 @@ export default function SmartPatterns() {
             <div className="pattern-rsi">
               RSI: <span className={d.rsi > 70 ? 'negative' : d.rsi < 30 ? 'positive' : ''}>{d.rsi}</span>
               <div className="rsi-bar">
-                <div className="rsi-fill" style={{ width: `${d.rsi}%`, background: d.rsi > 70 ? '#ef4444' : d.rsi < 30 ? '#22c55e' : '#7c8cf8' }} />
+                <div className="rsi-fill" style={{ width: `${d.rsi}%`, background: d.rsi > 70 ? '#ef4444' : d.rsi < 30 ? '#22c55e' : 'var(--color-primary, #7c8cf8)' }} />
               </div>
             </div>
 

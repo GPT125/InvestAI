@@ -145,13 +145,13 @@ function LoginForm() {
                   background: 'rgba(124,140,248,0.15)', border: '2px solid rgba(124,140,248,0.3)',
                   marginBottom: 20,
                 }}>
-                  <ShieldCheck size={34} style={{ color: '#7c8cf8' }} />
+                  <ShieldCheck size={34} style={{ color: 'var(--color-primary, #7c8cf8)' }} />
                 </div>
                 <h1 style={{ marginBottom: 8 }}>Verify Your Email</h1>
                 <p className="login-subtitle" style={{ marginBottom: 6 }}>
                   We sent an 8-digit code to
                 </p>
-                <p style={{ color: '#7c8cf8', fontWeight: 600, fontSize: 15, margin: 0 }}>
+                <p style={{ color: 'var(--color-primary, #7c8cf8)', fontWeight: 600, fontSize: 15, margin: 0 }}>
                   {verificationEmail}
                 </p>
               </div>
@@ -205,7 +205,7 @@ function LoginForm() {
                   style={{
                     background: 'none', border: 'none',
                     cursor: resendCooldown > 0 ? 'not-allowed' : 'pointer',
-                    color: resendCooldown > 0 ? '#555' : '#7c8cf8',
+                    color: resendCooldown > 0 ? '#555' : 'var(--color-primary, #7c8cf8)',
                     fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6,
                   }}
                 >

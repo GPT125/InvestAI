@@ -6,7 +6,7 @@ import { getPortfolio } from '../api/client';
 
 const api = axios.create({ baseURL: '/api', timeout: 120000 });
 
-const COLORS = ['#7c8cf8', '#f87171', '#22c55e', '#f59e0b', '#06b6d4', '#a78bfa', '#fb923c', '#e879f9', '#84cc16', '#f472b6'];
+const COLORS = ['var(--color-primary, #7c8cf8)', '#f87171', '#22c55e', '#f59e0b', '#06b6d4', '#a78bfa', '#fb923c', '#e879f9', '#84cc16', '#f472b6'];
 
 export default function PortfolioXray() {
   const [portfolio, setPortfolio] = useState(null);
@@ -45,7 +45,7 @@ export default function PortfolioXray() {
   if (error) return (
     <div className="xray-page">
       <div className="page-header-row"><h1><SearchIcon size={28} /> Portfolio X-Ray</h1></div>
-      <div className="feature-card"><p style={{color:'#f87171'}}>{error}</p><p>Add holdings in the <a href="/portfolio" style={{color:'#7c8cf8'}}>Portfolio</a> page first.</p></div>
+      <div className="feature-card"><p style={{color:'#f87171'}}>{error}</p><p>Add holdings in the <a href="/portfolio" style={{color:'var(--color-primary, #7c8cf8)'}}>Portfolio</a> page first.</p></div>
     </div>
   );
 

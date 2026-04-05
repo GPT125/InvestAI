@@ -7,7 +7,7 @@ import { renderMarkdown } from '../utils/markdown';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { PieChart as PieIcon, Plus, Trash2, Brain, TrendingUp, TrendingDown, History, Edit2, Check, X } from 'lucide-react';
 
-const COLORS = ['#7c8cf8', '#22c55e', '#ef4444', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1'];
+const COLORS = ['var(--color-primary, #7c8cf8)', '#22c55e', '#ef4444', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1'];
 
 export default function Portfolio() {
   const [portfolio, setPortfolio] = useState(null);
@@ -209,7 +209,7 @@ export default function Portfolio() {
               <button
                 className="add-btn"
                 onClick={() => setShowHistory(!showHistory)}
-                style={{ background: showHistory ? '#7c8cf8' : '#444' }}
+                style={{ background: showHistory ? 'var(--color-primary, #7c8cf8)' : '#444' }}
               >
                 <History size={16} /> Past Holdings ({soldHoldings.length})
               </button>

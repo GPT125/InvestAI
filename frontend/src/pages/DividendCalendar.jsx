@@ -45,7 +45,7 @@ const DividendCalendar = () => {
     borderRadius: '8px',
     padding: '16px',
   };
-  const accentColor = '#7c8cf8';
+  const accentColor = 'var(--color-primary, #7c8cf8)';
   const successColor = '#22c55e';
   const dangerColor = '#ef4444';
 

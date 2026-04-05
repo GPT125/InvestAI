@@ -8,10 +8,12 @@
   --color-bg: #0f0f1a;
   --color-card: #16162a;
   --color-primary: #7c8cf8;
+  --color-primary-rgb: 124, 140, 248;
   --color-border: #2a2a4a;
   --color-hover: #1e1e3a;
-  --color-text: #e0e0e0;
-  --color-muted: #888;
+  --color-text: #e8e8f2;
+  --color-text-secondary: #b0b0c8;
+  --color-muted: #7878a0;
 }
 
 body {
