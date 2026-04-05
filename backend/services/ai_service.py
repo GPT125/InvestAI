@@ -476,7 +476,7 @@ def chat(message: str, history: Optional[List[dict]] = None) -> str:
 
     # ── 3. Build system prompt with all live data ──────────────────────────
     system_content = (
-        f"You are StockAI, an expert stock market assistant with access to LIVE, REAL-TIME market data. "
+        f"You are InvestAI, an expert stock market assistant with access to LIVE, REAL-TIME market data. "
         f"The current date and time is {today_str}. "
         f"You have been provided with live market data pulled directly from Yahoo Finance right now — "
         f"use this data to answer questions accurately. Do NOT say you lack real-time data. "

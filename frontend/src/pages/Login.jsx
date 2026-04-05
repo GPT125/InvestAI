@@ -241,7 +241,7 @@ function LoginForm() {
           <div className="login-brand-content">
             <div className="login-logo">
               <TrendingUp size={40} />
-              <span>StockAI</span>
+              <span>InvestAI</span>
             </div>
             <h2>Smart investing starts with better insights</h2>
             <p>AI-powered stock analysis, real-time data, and comprehensive financial tools — all in one platform.</p>

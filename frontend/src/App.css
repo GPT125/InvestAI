@@ -2535,8 +2535,16 @@ input:focus, textarea:focus, select:focus { box-shadow: 0 0 0 2px #6366f120; }
 .nav-link.active { color: var(--color-primary, #7c8cf8); }
 .nav-link:hover { color: #ccc; }
 .analyze-btn, .compare-btn, .search-btn, .submit-btn, .period-btn.active,
-.financials-tab.active, .sector-chip.active, .filter-chip.active, .frequency-option.active {
+.financials-tab.active, .sector-chip.active, .filter-chip.active, .frequency-option.active,
+.risk-option.active {
   background: var(--color-primary, #7c8cf8);
+  color: #fff !important;
+  border-color: var(--color-primary, #7c8cf8) !important;
+}
+.analyze-btn *, .compare-btn *, .search-btn *, .submit-btn *,
+.period-btn.active *, .financials-tab.active *, .sector-chip.active *,
+.filter-chip.active *, .frequency-option.active *, .risk-option.active * {
+  color: #fff !important;
 }
 a { color: var(--color-primary, #7c8cf8); }
 

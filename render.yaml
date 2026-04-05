@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: stockai
+    name: investai
     runtime: python
     region: oregon
     plan: free

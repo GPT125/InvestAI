@@ -131,7 +131,7 @@ export default function Navbar() {
     <nav className="navbar">
       <Link to="/" className="nav-logo">
         <TrendingUp size={22} />
-        <span>StockAI</span>
+        <span>InvestAI</span>
       </Link>
 
       {/* Search — now on the left side */}

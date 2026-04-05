@@ -77,7 +77,7 @@ def _send_verification_email(email: str, code: str, name: str = "") -> bool:
 <body style="margin:0;padding:0;background:#0a0a14;font-family:Arial,sans-serif;">
   <div style="max-width:520px;margin:40px auto;background:#13132a;border:1px solid #2a2a4a;border-radius:14px;padding:36px;">
     <div style="margin-bottom:24px;">
-      <span style="font-size:22px;font-weight:700;color:#7c8cf8;">📈 StockAI</span>
+      <span style="font-size:22px;font-weight:700;color:#7c8cf8;">📈 InvestAI</span>
     </div>
     <h2 style="color:#e0e0e0;margin:0 0 8px;">Verify Your Email</h2>
     <p style="color:#888;margin:0 0 28px;font-size:15px;">{greeting} Thanks for signing up — enter the code below to activate your account.</p>
@@ -88,16 +88,16 @@ def _send_verification_email(email: str, code: str, name: str = "") -> bool:
       <p style="color:#666;font-size:12px;margin:12px 0 0;">Expires in 15 minutes</p>
     </div>
 
-    <p style="color:#666;font-size:13px;margin:0;">If you didn't create a StockAI account, you can safely ignore this email.</p>
+    <p style="color:#666;font-size:13px;margin:0;">If you didn't create a InvestAI account, you can safely ignore this email.</p>
   </div>
 </body>
 </html>
 """
-    text_body = f"Your StockAI verification code is: {code}\n\nThis code expires in 15 minutes."
+    text_body = f"Your InvestAI verification code is: {code}\n\nThis code expires in 15 minutes."
 
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"StockAI — Your verification code: {code}"
-    msg["From"] = f"StockAI <{smtp_from}>"
+    msg["Subject"] = f"InvestAI — Your verification code: {code}"
+    msg["From"] = f"InvestAI <{smtp_from}>"
     msg["To"] = email
     msg.attach(MIMEText(text_body, "plain"))
     msg.attach(MIMEText(html_body, "html"))
