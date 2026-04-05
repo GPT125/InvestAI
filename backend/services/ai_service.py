@@ -108,17 +108,36 @@ def _call_deepseek(messages: List[dict], temperature: float = 0.3, max_tokens: i
         return None
 
 
+def _strip_disclaimer(text: str) -> str:
+    """Remove any 'not financial advice' / disclaimer lines from AI output."""
+    if not text:
+        return text
+    # Remove lines/phrases that contain the disclaimer (case-insensitive)
+    patterns = [
+        r'\*?\*?\s*_?\*?\s*not financial advice\.?\s*\*?_?\s*\*?\*?',
+        r'\*?\*?\s*this is not financial advice[^\n]*',
+        r'\*?\*?\s*disclaimer:?[^\n]*not financial advice[^\n]*',
+        r'\*?\*?\s*important:?\s*this is not financial advice[^\n]*',
+        r'\*?\*?\s*for educational (and informational )?purposes only[^\n]*',
+    ]
+    for p in patterns:
+        text = re.sub(p, '', text, flags=re.IGNORECASE)
+    # Collapse resulting blank lines
+    text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
+    return text.strip()
+
+
 def _call_ai(messages: List[dict], temperature: float = 0.3, max_tokens: int = 1500) -> str:
     """Call AI with automatic fallback: DeepSeek -> OpenRouter -> Groq."""
     result = _call_deepseek(messages, temperature, max_tokens)
     if result:
-        return result
+        return _strip_disclaimer(result)
     result = _call_openrouter(messages, temperature, max_tokens)
     if result:
-        return result
+        return _strip_disclaimer(result)
     result = _call_groq(messages, temperature, max_tokens)
     if result:
-        return result
+        return _strip_disclaimer(result)
     return "AI analysis unavailable — all AI providers failed."
 
 
@@ -199,8 +218,7 @@ def _ai_council(messages: List[dict], user_message: str) -> str:
                 "Merge them into ONE definitive, well-structured answer. Rules:\n"
                 "- Speak directly and authoritatively — do NOT reference 'analysts' or 'perspectives'.\n"
                 "- Where both agree, state it confidently. Where they differ, present both views briefly.\n"
-                "- Be concise — no longer than a single analyst's response.\n"
-                "- End with: *Not financial advice.*"
+                "- Be concise — no longer than a single analyst's response."
             ),
         },
         {
@@ -357,9 +375,7 @@ Brief 2-3 sentence overview.
 Based on the historical data (up to 30+ years if available), describe major trends, cycles, and pattern analysis.
 
 ## Recommendation
-Your recommendation with reasoning.
-
-IMPORTANT: This is not financial advice. This is for educational and informational purposes only."""
+Your recommendation with reasoning."""
 
     # Get HuggingFace FinBERT sentiment on recent news
     hf_sentiment_text = ""
@@ -372,7 +388,7 @@ IMPORTANT: This is not financial advice. This is for educational and information
 
     try:
         messages = [
-            {"role": "system", "content": "You are an expert financial analyst. Always include a disclaimer that this is not financial advice."},
+            {"role": "system", "content": "You are an expert financial analyst providing direct, confident analysis."},
             {"role": "user", "content": prompt},
         ]
         result = _call_ai(messages, temperature=0.3, max_tokens=1500)
@@ -480,7 +496,7 @@ def chat(message: str, history: Optional[List[dict]] = None) -> str:
         f"The current date and time is {today_str}. "
         f"You have been provided with live market data pulled directly from Yahoo Finance right now — "
         f"use this data to answer questions accurately. Do NOT say you lack real-time data. "
-        f"Be concise, insightful, and always note this is not financial advice.\n\n"
+        f"Be concise, insightful, and direct.\n\n"
     )
 
     if market_context:

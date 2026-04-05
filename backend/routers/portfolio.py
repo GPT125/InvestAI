@@ -103,13 +103,11 @@ Brief assessment of the overall portfolio.
 Assessment of sector/asset diversification.
 
 ## Recommendations
-- Specific actionable suggestions (3-5 points)
-
-IMPORTANT: This is not financial advice. For educational purposes only."""
+- Specific actionable suggestions (3-5 points)"""
 
     # Use _call_ai directly (clean single response, no council overhead)
     messages = [
-        {"role": "system", "content": "You are an expert financial analyst. Provide clear, well-structured portfolio analysis using the markdown format requested. This is for educational purposes only — not financial advice."},
+        {"role": "system", "content": "You are an expert financial analyst. Provide clear, well-structured, confident portfolio analysis using the markdown format requested."},
         {"role": "user", "content": prompt},
     ]
     analysis = ai_service._call_ai(messages, temperature=0.3, max_tokens=1200)
