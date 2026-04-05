@@ -1,5 +1,6 @@
 import re
 import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Optional, List
 from groq import Groq
 from backend import config
@@ -15,8 +16,25 @@ def _get_client() -> Groq:
     return _client
 
 
-def _call_openrouter(messages: List[dict], temperature: float = 0.3, max_tokens: int = 1500) -> Optional[str]:
-    """Fallback AI provider: OpenRouter (supports many models)."""
+def _call_groq(messages: List[dict], temperature: float = 0.7, max_tokens: int = 700) -> Optional[str]:
+    """Groq inference — llama-3.3-70b, very fast."""
+    if not config.GROQ_API_KEY:
+        return None
+    try:
+        client = _get_client()
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+        return response.choices[0].message.content
+    except Exception:
+        return None
+
+
+def _call_openrouter(messages: List[dict], temperature: float = 0.3, max_tokens: int = 1500, model: str = "deepseek/deepseek-chat") -> Optional[str]:
+    """OpenRouter — routes to various models. Default: deepseek-chat."""
     if not config.OPENROUTER_API_KEY:
         return None
     try:
@@ -27,7 +45,7 @@ def _call_openrouter(messages: List[dict], temperature: float = 0.3, max_tokens:
                 "Content-Type": "application/json",
             },
             json={
-                "model": "deepseek/deepseek-chat",
+                "model": model,
                 "messages": messages,
                 "temperature": temperature,
                 "max_tokens": max_tokens,
@@ -91,32 +109,111 @@ def _call_deepseek(messages: List[dict], temperature: float = 0.3, max_tokens: i
 
 
 def _call_ai(messages: List[dict], temperature: float = 0.3, max_tokens: int = 1500) -> str:
-    """Call AI with automatic fallback: Deepseek -> OpenRouter -> Groq."""
-    # Primary: Deepseek (best quality for financial analysis)
+    """Call AI with automatic fallback: DeepSeek -> OpenRouter -> Groq."""
     result = _call_deepseek(messages, temperature, max_tokens)
     if result:
         return result
-
-    # Fallback 1: OpenRouter (routes to deepseek-chat)
     result = _call_openrouter(messages, temperature, max_tokens)
     if result:
         return result
-
-    # Fallback 2: Groq (fastest, llama model)
-    if config.GROQ_API_KEY:
-        try:
-            client = _get_client()
-            response = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
-            return response.choices[0].message.content
-        except Exception:
-            pass
-
+    result = _call_groq(messages, temperature, max_tokens)
+    if result:
+        return result
     return "AI analysis unavailable — all AI providers failed."
+
+
+def _ai_council(messages: List[dict], user_message: str) -> str:
+    """Run 3 AI models in parallel, then synthesize their answers into one response.
+
+    Panel:
+      • Groq  — Llama 3.3 70B  (Meta, speed-optimised)
+      • DeepSeek — deepseek-chat  (strong financial reasoning)
+      • OpenRouter — Qwen 2.5 72B  (Alibaba, diverse perspective)
+
+    A fourth call synthesises the three views into one definitive answer.
+    """
+
+    # Each analyst gets a shorter output budget — synthesis will merge them
+    ANALYST_TOKENS = 600
+
+    def _groq_analyst():
+        return ("Groq · Llama 3.3 70B", _call_groq(messages, temperature=0.7, max_tokens=ANALYST_TOKENS))
+
+    def _deepseek_analyst():
+        return ("DeepSeek · deepseek-chat", _call_deepseek(messages, temperature=0.7, max_tokens=ANALYST_TOKENS))
+
+    def _openrouter_analyst():
+        # Qwen 2.5 72B — different architecture/training from the other two
+        result = _call_openrouter(messages, temperature=0.7, max_tokens=ANALYST_TOKENS, model="qwen/qwen-2.5-72b-instruct")
+        if not result:
+            # Fallback to mistral for diversity
+            result = _call_openrouter(messages, temperature=0.7, max_tokens=ANALYST_TOKENS, model="mistralai/mistral-7b-instruct:free")
+        return ("OpenRouter · Qwen 2.5 72B", result)
+
+    # ── Fire all three in parallel ──────────────────────────────────────────
+    responses: List[tuple] = []
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        future_map = {
+            executor.submit(_groq_analyst): "Groq",
+            executor.submit(_deepseek_analyst): "DeepSeek",
+            executor.submit(_openrouter_analyst): "OpenRouter",
+        }
+        for future in as_completed(future_map, timeout=50):
+            try:
+                name, result = future.result()
+                if result and len(result.strip()) > 30:
+                    responses.append((name, result.strip()))
+            except Exception:
+                pass
+
+    if not responses:
+        return "AI council unavailable — all providers failed."
+
+    # Only one responded — return it directly (no synthesis needed)
+    if len(responses) == 1:
+        return responses[0][1]
+
+    # ── Synthesis ───────────────────────────────────────────────────────────
+    analyst_block = "\n\n".join(
+        f"**{name}:**\n{resp}" for name, resp in responses
+    )
+
+    synthesis_msgs = [
+        {
+            "role": "system",
+            "content": (
+                "You are a chief investment strategist reviewing multiple AI analyst reports on the same question. "
+                "Synthesize them into ONE authoritative, well-structured answer. Rules:\n"
+                "- Where analysts agree, state it confidently as consensus.\n"
+                "- Where they disagree, present both views with brief rationale.\n"
+                "- Highlight any unique insight only one analyst raised.\n"
+                "- Match the depth of a single analyst's response — do not balloon in length.\n"
+                "- Do NOT say 'Analyst 1 says' or 'According to DeepSeek' — speak directly.\n"
+                "- Always end with the standard disclaimer: not financial advice."
+            ),
+        },
+        {
+            "role": "user",
+            "content": (
+                f"Original question: {user_message}\n\n"
+                f"Three independent AI analysts answered:\n\n"
+                f"{analyst_block}\n\n"
+                "Synthesize the above into one unified answer. "
+                "Open with the line: **🤝 AI Council Synthesis**"
+            ),
+        },
+    ]
+
+    # Use Groq for synthesis (fastest, excellent instruction-following)
+    synthesis = _call_groq(synthesis_msgs, temperature=0.3, max_tokens=1100)
+    if not synthesis:
+        synthesis = _call_deepseek(synthesis_msgs, temperature=0.3, max_tokens=1100)
+    if not synthesis:
+        # Last resort: concatenate the top 2 responses
+        return responses[0][1]
+
+    contributor_names = " · ".join(name for name, _ in responses)
+    return f"{synthesis}\n\n---\n*Council: {contributor_names}*"
 
 
 def get_hf_sentiment(text: str) -> Optional[dict]:
@@ -402,10 +499,13 @@ def chat(message: str, history: Optional[List[dict]] = None) -> str:
     messages.append({"role": "user", "content": message})
 
     try:
-        # Try Perplexity first (real-time web search), then fall back
+        # Perplexity has real-time web search — use it if key is configured
         result = _call_perplexity(messages, temperature=0.5, max_tokens=1200)
         if result:
             return result
-        return _call_ai(messages, temperature=0.7, max_tokens=1200)
+
+        # AI Council: Groq + DeepSeek + OpenRouter answer in parallel,
+        # then a synthesiser merges the three views into one definitive response.
+        return _ai_council(messages, message)
     except Exception as e:
         return f"Chat error: {str(e)}"
