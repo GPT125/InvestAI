@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Layout/Navbar';
 import Dashboard from './pages/Dashboard';
@@ -23,34 +23,8 @@ import AcademyModule from './pages/AcademyModule';
 import AcademyLesson from './pages/AcademyLesson';
 import './App.css';
 
-/** Polls /api/health and shows a banner if the server is cold-starting. */
-function ServerStatusBanner() {
-  const [status, setStatus] = useState('checking');
-  const retryRef = useRef(null);
-
-  useEffect(() => {
-    let mounted = true;
-    const slowTimer = setTimeout(() => { if (mounted && status === 'checking') setStatus('slow'); }, 4000);
-
-    async function ping() {
-      try {
-        const res = await fetch('/api/health', { signal: AbortSignal.timeout(8000) });
-        if (res.ok && mounted) { setStatus('ok'); clearTimeout(slowTimer); return; }
-      } catch {}
-      if (mounted) retryRef.current = setTimeout(ping, 5000);
-    }
-    ping();
-    return () => { mounted = false; clearTimeout(slowTimer); clearTimeout(retryRef.current); };
-  }, []);
-
-  if (status !== 'slow') return null;
-  return (
-    <div className="server-banner">
-      <span className="server-banner-spinner" />
-      <span>Server is starting up — data will load shortly.</span>
-    </div>
-  );
-}
+// ServerStatusBanner removed — API client now silently retries cold-starts
+// on 502/503/504 and network errors, so the banner is no longer needed.
 
 /** Redirects to /login if not authenticated. While auth is loading shows nothing. */
 function ProtectedRoute({ children }) {
@@ -85,7 +59,6 @@ function AppContent() {
 
   return (
     <div className="app">
-      <ServerStatusBanner />
       <Prefetcher />
       {!isLoginPage && <Navbar />}
       <main className={isLoginPage ? '' : 'main-content'}>

@@ -5,6 +5,35 @@ const api = axios.create({
   timeout: 120000,
 });
 
+// --- Auto-retry on Render cold starts (502/503/504 or network error) ---
+// Render's free tier spins down after inactivity; the first request after a
+// cold start typically returns 502 for a few seconds while the server boots.
+// We silently retry up to 5 times with a short backoff so the user never sees it.
+const RETRY_STATUSES = new Set([502, 503, 504]);
+const MAX_RETRIES = 5;
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const config = error.config;
+    if (!config || config.__noRetry) return Promise.reject(error);
+
+    const status = error.response?.status;
+    const isNetwork = !error.response; // ECONNRESET / timeout / CORS
+    const shouldRetry = isNetwork || RETRY_STATUSES.has(status);
+
+    if (!shouldRetry) return Promise.reject(error);
+
+    config.__retryCount = (config.__retryCount || 0) + 1;
+    if (config.__retryCount > MAX_RETRIES) return Promise.reject(error);
+
+    // Backoff: 1.5s, 3s, 4.5s, 6s, 7.5s — covers ~22s total for cold start
+    const delay = 1500 * config.__retryCount;
+    await new Promise((r) => setTimeout(r, delay));
+    return api(config);
+  }
+);
+
 // Market
 export const getMarketOverview = () => api.get('/market/overview');
 export const getSectors = () => api.get('/market/sectors');
