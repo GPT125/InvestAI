@@ -160,14 +160,27 @@ export default function AcademyLesson() {
 
         {/* Video */}
         {lesson.kind === 'video' && lesson.video && (
-          <div className="academy-video-wrap">
-            <iframe
-              src={lesson.video}
-              title={lesson.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
+          <>
+            <div className="academy-video-wrap">
+              <iframe
+                src={lesson.video}
+                title={lesson.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+            <a
+              href={(() => {
+                const m = lesson.video.match(/\/embed\/([^?&/]+)/);
+                return m ? `https://www.youtube.com/watch?v=${m[1]}` : lesson.video;
+              })()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="academy-video-fallback"
+            >
+              <ExternalLink size={14} /> Watch on YouTube if video doesn't load
+            </a>
+          </>
         )}
 
         {/* Body text (video + text + activity all use this) */}

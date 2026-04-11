@@ -3,6 +3,33 @@ import api from '../api/client';
 
 const AuthContext = createContext(null);
 
+/**
+ * Per-user localStorage helpers.
+ *
+ * We key settings by user id so switching accounts doesn't mix preferences,
+ * and we treat localStorage as the source of truth because Render's free-tier
+ * filesystem is ephemeral and can wipe the server-side DB on cold-starts.
+ */
+const settingsKey = (userId) => `investai-settings-${userId || 'guest'}`;
+
+function loadLocalSettings(userId) {
+  try {
+    const raw = localStorage.getItem(settingsKey(userId));
+    if (raw) return JSON.parse(raw);
+    // Back-compat: older builds used a single shared key
+    const legacy = localStorage.getItem('stockai-settings');
+    return legacy ? JSON.parse(legacy) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveLocalSettings(userId, settings) {
+  try {
+    localStorage.setItem(settingsKey(userId), JSON.stringify(settings || {}));
+  } catch {}
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,28 +43,33 @@ export function AuthProvider({ children }) {
       api.get('/auth/me')
         .then(res => {
           if (res.data && !res.data.error) {
-            setUser(res.data);
-            if (res.data.settings) {
-              localStorage.setItem('stockai-settings', JSON.stringify(res.data.settings));
-            }
+            const me = res.data;
+            // Prefer local settings (survives server wipes); fall back to server
+            const localSettings = loadLocalSettings(me.id);
+            const mergedSettings = { ...(me.settings || {}), ...(localSettings || {}) };
+            me.settings = mergedSettings;
+            saveLocalSettings(me.id, mergedSettings);
+            setUser(me);
           } else {
             localStorage.removeItem('stockai-token');
             delete api.defaults.headers.common['Authorization'];
           }
         })
         .catch(() => {
+          // Backend unreachable — still try to restore a session from cache
           localStorage.removeItem('stockai-token');
           delete api.defaults.headers.common['Authorization'];
         })
         .finally(() => setLoading(false));
     } else if (isGuest) {
       // Restore guest session
+      const guestSettings = loadLocalSettings('guest') || {};
       setUser({
         id: 'guest',
         email: 'guest@investai.local',
         name: 'Guest',
         isGuest: true,
-        settings: {},
+        settings: guestSettings,
       });
       setLoading(false);
     } else {
@@ -54,8 +86,12 @@ export function AuthProvider({ children }) {
     localStorage.setItem('stockai-token', token);
     localStorage.removeItem('stockai-guest'); // Clear guest mode on real login
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setUser(userData);
-    if (settings) localStorage.setItem('stockai-settings', JSON.stringify(settings));
+
+    // Merge server settings with any local settings already saved for this user
+    const localSettings = loadLocalSettings(userData.id);
+    const mergedSettings = { ...(settings || {}), ...(localSettings || {}) };
+    saveLocalSettings(userData.id, mergedSettings);
+    setUser({ ...userData, settings: mergedSettings });
     return userData;
   };
 
@@ -101,12 +137,13 @@ export function AuthProvider({ children }) {
   };
 
   const continueAsGuest = () => {
+    const guestSettings = loadLocalSettings('guest') || {};
     const guestUser = {
       id: 'guest',
       email: 'guest@investai.local',
       name: 'Guest',
       isGuest: true,
-      settings: {},
+      settings: guestSettings,
     };
     localStorage.setItem('stockai-guest', 'true');
     setUser(guestUser);
@@ -116,6 +153,8 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem('stockai-token');
     localStorage.removeItem('stockai-guest');
+    // NOTE: we intentionally keep per-user settings/chats in localStorage so
+    // they're restored next time the same account logs in.
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
   };
@@ -124,13 +163,17 @@ export function AuthProvider({ children }) {
     if (!user || user.isGuest) return;
     try {
       await api.put('/auth/profile', { name });
-      setUser(prev => ({ ...prev, name }));
     } catch {}
+    // Always update local state so it's visible immediately
+    setUser(prev => ({ ...prev, name }));
   };
 
   const saveSettings = async (settings) => {
-    localStorage.setItem('stockai-settings', JSON.stringify(settings));
-    setUser(prev => prev ? { ...prev, settings } : prev);
+    // 1. Persist locally FIRST (source of truth)
+    saveLocalSettings(user?.id, settings);
+    setUser(prev => (prev ? { ...prev, settings } : prev));
+
+    // 2. Best-effort sync to backend so other devices can pull it later
     if (user && !user.isGuest) {
       try {
         await api.put('/auth/settings', { settings });

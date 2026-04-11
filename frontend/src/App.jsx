@@ -22,6 +22,15 @@ import GlobalMarkets from './pages/GlobalMarkets';
 import Academy from './pages/Academy';
 import AcademyModule from './pages/AcademyModule';
 import AcademyLesson from './pages/AcademyLesson';
+import SectorRotation from './pages/SectorRotation';
+import VolatilityWeather from './pages/VolatilityWeather';
+import PortfolioXray from './pages/PortfolioXray';
+import DividendCalendar from './pages/DividendCalendar';
+import StressTest from './pages/StressTest';
+import TimeMachine from './pages/TimeMachine';
+import Insights from './pages/Insights';
+import InvestorQuiz from './pages/InvestorQuiz';
+import Pricing from './pages/Pricing';
 import { Bot } from 'lucide-react';
 import './App.css';
 
@@ -89,12 +98,19 @@ function AppContent() {
           <Route path="/academy/:moduleId" element={<ProtectedRoute><AcademyModule /></ProtectedRoute>} />
           <Route path="/academy/:moduleId/:lessonId" element={<ProtectedRoute><AcademyLesson /></ProtectedRoute>} />
 
+          {/* Pro / premium feature pages */}
+          <Route path="/rotation" element={<ProtectedRoute><SectorRotation /></ProtectedRoute>} />
+          <Route path="/weather" element={<ProtectedRoute><VolatilityWeather /></ProtectedRoute>} />
+          <Route path="/xray" element={<ProtectedRoute><PortfolioXray /></ProtectedRoute>} />
+          <Route path="/dividends" element={<ProtectedRoute><DividendCalendar /></ProtectedRoute>} />
+          <Route path="/stress-test" element={<ProtectedRoute><StressTest /></ProtectedRoute>} />
+          <Route path="/time-machine" element={<ProtectedRoute><TimeMachine /></ProtectedRoute>} />
+          <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
+          <Route path="/quiz" element={<ProtectedRoute><InvestorQuiz /></ProtectedRoute>} />
+          <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
+
           {/* Redirects */}
           <Route path="/screener" element={<Navigate to="/" replace />} />
-          <Route path="/rotation" element={<Navigate to="/" replace />} />
-          <Route path="/weather" element={<Navigate to="/" replace />} />
-          <Route path="/xray" element={<Navigate to="/portfolio" replace />} />
-          <Route path="/quiz" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 

@@ -1,18 +1,32 @@
 import { useState, useRef, useEffect } from 'react';
-import { chatWithAI, getConversations, createConversation, getConversationMessages, deleteConversation, renameConversation, chatInConversation } from '../api/client';
+import { chatWithAI, getConversations } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import { MessageSquare, Send, Bot, User, Plus, Trash2, Edit3, Check, X, Clock, Sparkles, TrendingUp, BarChart3, HelpCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  MessageSquare, Send, Bot, User, Plus, Trash2, Edit3, Check, X, Clock,
+  Sparkles, TrendingUp, BarChart3, HelpCircle, ChevronLeft, ChevronRight,
+} from 'lucide-react';
 import { renderMarkdown } from '../utils/markdown';
+import {
+  listConversations,
+  createLocalConversation,
+  getLocalConversation,
+  appendLocalMessage,
+  renameLocalConversation,
+  deleteLocalConversation,
+  mergeServerConversations,
+} from '../utils/chatStore';
 
 const SUGGESTED_PROMPTS = [
   { icon: TrendingUp, text: "What are today's top performing stocks?", label: "Top Movers" },
-  { icon: BarChart3, text: "Analyze AAPL stock for me — is it a good buy?", label: "Stock Analysis" },
-  { icon: Sparkles, text: "Compare QQQ vs SPY for long-term investment", label: "ETF Compare" },
-  { icon: HelpCircle, text: "Explain P/E ratio and why it matters", label: "Learn Investing" },
+  { icon: BarChart3,  text: "Analyze AAPL stock for me — is it a good buy?", label: "Stock Analysis" },
+  { icon: Sparkles,   text: "Compare QQQ vs SPY for long-term investment",   label: "ETF Compare" },
+  { icon: HelpCircle, text: "Explain P/E ratio and why it matters",          label: "Learn Investing" },
 ];
 
 export default function Chat() {
   const { user } = useAuth();
+  const userKey = user?.id || 'guest';
+
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,7 +35,6 @@ export default function Chat() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
-  const [loadingConvos, setLoadingConvos] = useState(false);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -29,57 +42,47 @@ export default function Chat() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Load conversations on mount if logged in (not guest)
+  // Load conversations from localStorage, then merge any server-side convos.
+  // localStorage is the source of truth so we survive server wipes.
   useEffect(() => {
-    if (user && !user.isGuest) {
-      loadConversations();
+    if (!user) return;
+    setConversations(listConversations(userKey));
+
+    // Best-effort: pull server convos in case we're on a new device
+    if (!user.isGuest) {
+      getConversations()
+        .then((res) => {
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            mergeServerConversations(userKey, res.data);
+            setConversations(listConversations(userKey));
+          }
+        })
+        .catch(() => {});
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const loadConversations = async () => {
-    setLoadingConvos(true);
-    try {
-      const res = await getConversations();
-      setConversations(res.data || []);
-    } catch {
-      setConversations([]);
-    } finally {
-      setLoadingConvos(false);
-    }
-  };
+  const refreshConvos = () => setConversations(listConversations(userKey));
 
-  const handleNewChat = async () => {
+  const handleNewChat = () => {
     setMessages([]);
     setActiveConvo(null);
-    if (user && !user.isGuest) {
-      try {
-        const res = await createConversation("New Chat");
-        setActiveConvo(res.data);
-        await loadConversations();
-      } catch {}
-    }
   };
 
-  const handleSelectConvo = async (convo) => {
-    setActiveConvo(convo);
-    try {
-      const res = await getConversationMessages(convo.id);
-      setMessages(res.data || []);
-    } catch {
-      setMessages([]);
-    }
+  const handleSelectConvo = (convo) => {
+    const fresh = getLocalConversation(userKey, convo.id);
+    setActiveConvo(fresh || convo);
+    setMessages(fresh?.messages || []);
   };
 
-  const handleDeleteConvo = async (e, convoId) => {
+  const handleDeleteConvo = (e, convoId) => {
     e.stopPropagation();
-    try {
-      await deleteConversation(convoId);
-      if (activeConvo?.id === convoId) {
-        setMessages([]);
-        setActiveConvo(null);
-      }
-      await loadConversations();
-    } catch {}
+    deleteLocalConversation(userKey, convoId);
+    if (activeConvo?.id === convoId) {
+      setMessages([]);
+      setActiveConvo(null);
+    }
+    refreshConvos();
   };
 
   const handleStartRename = (e, convo) => {
@@ -88,65 +91,66 @@ export default function Chat() {
     setEditTitle(convo.title);
   };
 
-  const handleSaveRename = async (e) => {
+  const handleSaveRename = (e) => {
     e.stopPropagation();
     if (editTitle.trim()) {
-      try {
-        await renameConversation(editingId, editTitle.trim());
-        await loadConversations();
-      } catch {}
+      renameLocalConversation(userKey, editingId, editTitle.trim());
+      refreshConvos();
     }
     setEditingId(null);
+  };
+
+  /** Derive a short title from the first user message. */
+  const makeTitle = (msg) => {
+    const clean = msg.replace(/\s+/g, ' ').trim();
+    return clean.length > 40 ? clean.slice(0, 40) + '…' : clean;
   };
 
   const handleSend = async (text) => {
     const msg = text || input.trim();
     if (!msg || loading) return;
 
-    const userMsg = { role: 'user', content: msg };
+    // Ensure we have an active conversation (create locally if needed)
+    let convo = activeConvo;
+    if (!convo) {
+      convo = createLocalConversation(userKey, makeTitle(msg));
+      setActiveConvo(convo);
+    } else if (convo.title === 'New Chat') {
+      // Auto-title conversation from first message
+      renameLocalConversation(userKey, convo.id, makeTitle(msg));
+      convo = { ...convo, title: makeTitle(msg) };
+      setActiveConvo(convo);
+    }
+
+    // Persist user message locally IMMEDIATELY
+    appendLocalMessage(userKey, convo.id, 'user', msg);
+    const userMsg = { role: 'user', content: msg, timestamp: Math.floor(Date.now() / 1000) };
     const currentMessages = [...messages, userMsg];
     setMessages(currentMessages);
+    refreshConvos();
     setInput('');
     setLoading(true);
 
     try {
       const history = currentMessages.map((m) => ({ role: m.role, content: m.content }));
+      const res = await chatWithAI(msg, history);
+      const response = res.data.response;
 
-      let response;
-      const isLoggedIn = user && !user.isGuest;
-      if (isLoggedIn && activeConvo) {
-        // Logged in with active conversation — save to history
-        const res = await chatInConversation(activeConvo.id, msg, history);
-        response = res.data.response;
-        // AI generates a title on the first message — update sidebar instantly
-        if (res.data.title) {
-          setActiveConvo(prev => ({ ...prev, title: res.data.title }));
-          setConversations(prev => prev.map(c =>
-            c.id === activeConvo.id ? { ...c, title: res.data.title } : c
-          ));
-        }
-        loadConversations();
-      } else if (isLoggedIn && !activeConvo) {
-        // Logged in but no convo yet — create one and send
-        const convoRes = await createConversation("New Chat");
-        const newConvo = convoRes.data;
-        setActiveConvo(newConvo);
-        const res = await chatInConversation(newConvo.id, msg, history);
-        response = res.data.response;
-        // Update title immediately from AI response
-        if (res.data.title) {
-          setActiveConvo(prev => ({ ...prev, title: res.data.title }));
-        }
-        loadConversations();
-      } else {
-        // Guest or not logged in — just chat without saving
-        const res = await chatWithAI(msg, history);
-        response = res.data.response;
-      }
-
-      setMessages((prev) => [...prev, { role: 'assistant', content: response }]);
+      // Persist assistant reply locally
+      appendLocalMessage(userKey, convo.id, 'assistant', response);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: response, timestamp: Math.floor(Date.now() / 1000) },
+      ]);
+      refreshConvos();
     } catch {
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
+      const errMsg = 'Sorry, I encountered an error. Please try again.';
+      appendLocalMessage(userKey, convo.id, 'assistant', errMsg);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: errMsg, timestamp: Math.floor(Date.now() / 1000) },
+      ]);
+      refreshConvos();
     } finally {
       setLoading(false);
     }
@@ -170,7 +174,6 @@ export default function Chat() {
     return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
-
   const isEmptyState = messages.length === 0 && !loading;
 
   return (
@@ -192,9 +195,7 @@ export default function Chat() {
               </button>
 
               <div className="convo-list">
-                {loadingConvos ? (
-                  <div className="convo-loading">Loading...</div>
-                ) : conversations.length > 0 ? (
+                {conversations.length > 0 ? (
                   conversations.map((c) => (
                     <div
                       key={c.id}

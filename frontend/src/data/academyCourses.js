@@ -190,7 +190,7 @@ You contributed only $1,000, but after 40 years it's worth **$45,000+** — and 
     tagline: 'Master the one investment vehicle that beats 90% of professionals.',
     icon: '📊',
     color: '#22c55e',
-    level: 'Beginner → Intermediate',
+    level: 'Beginner',
     duration: '~90 minutes',
     summary: 'Index funds, sector ETFs, thematic ETFs, expense ratios, dividends — everything you need to build a bulletproof ETF portfolio.',
     lessons: [
@@ -528,7 +528,7 @@ That's it. You're an investor.`,
     tagline: 'Asset allocation, diversification, and the 3-fund portfolio that beats Wall Street.',
     icon: '🏗️',
     color: '#a855f7',
-    level: 'Beginner → Intermediate',
+    level: 'Beginner',
     duration: '~75 minutes',
     summary: 'Stop guessing. Learn the proven frameworks professionals use to build portfolios that match your age, goals, and risk tolerance.',
     lessons: [
@@ -695,7 +695,7 @@ Rebalance once a year (sell whatever is too high, buy whatever is too low to ret
     tagline: 'The tax-advantaged accounts Uncle Sam practically pays you to use.',
     icon: '🏖️',
     color: '#06b6d4',
-    level: 'Beginner → Intermediate',
+    level: 'Intermediate',
     duration: '~60 minutes',
     summary: 'Millions of dollars in extra wealth come from using retirement accounts properly. Here\'s how.',
     lessons: [
@@ -1026,7 +1026,7 @@ Ask yourself: is this a healthy business? Would you own a piece of it for the ne
     tagline: 'Candlesticks, trends, support/resistance, and moving averages.',
     icon: '📈',
     color: '#ef4444',
-    level: 'Intermediate',
+    level: 'Advanced',
     duration: '~75 minutes',
     summary: 'Learn to read price charts like traders do. Spot trends, reversals, and key levels.',
     lessons: [
@@ -1473,7 +1473,7 @@ If NVDA crashes to $350, your put is worth $100/share × 100 = **$10,000**. You 
     tagline: 'The biggest enemy of your portfolio is the person in the mirror.',
     icon: '🧠',
     color: '#8b5cf6',
-    level: 'All levels',
+    level: 'Intermediate',
     duration: '~60 minutes',
     summary: 'Behavioral finance, cognitive biases, and the mental rules that separate rich investors from broke ones.',
     lessons: [
@@ -1744,7 +1744,7 @@ Jack Bogle (founder of Vanguard) called it: **"Don't just do something — stand
     tagline: 'Keep more of your gains — legally.',
     icon: '📑',
     color: '#64748b',
-    level: 'Intermediate',
+    level: 'Advanced',
     duration: '~50 minutes',
     summary: 'Capital gains, wash sales, tax-loss harvesting, and the strategies that save investors thousands.',
     lessons: [

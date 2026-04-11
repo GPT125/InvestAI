@@ -4,6 +4,8 @@ import {
   BarChart3, Search, MessageSquare, Settings, TrendingUp, PieChart,
   GitCompare, SlidersHorizontal, User, LogOut, X, Eye, Zap, Swords,
   Activity, Scan, Trophy, ChevronDown, Globe, BookOpen,
+  CloudRain, Clock3, FlaskConical, CalendarDays, RefreshCw, Lightbulb,
+  HelpCircle, Fingerprint, Microscope,
 } from 'lucide-react';
 import { searchStocks } from '../../api/client';
 import { formatCurrency, getChangeColor } from '../../utils/formatters';
@@ -16,38 +18,47 @@ const navGroups = [
   {
     label: 'Markets',
     items: [
-      { path: '/',          label: 'Dashboard',  icon: BarChart3,  desc: 'Live market overview & indices' },
-      { path: '/global',    label: 'Global',     icon: Globe,      desc: 'World indices, currencies & events' },
-      { path: '/momentum',  label: 'Momentum',   icon: Zap,        desc: 'Trending movers & velocity' },
-      { path: '/macro',     label: 'Macro',      icon: Activity,   desc: 'Economic indicators & pulse' },
+      { path: '/',          label: 'Dashboard',     icon: BarChart3,  desc: 'Live market overview & indices' },
+      { path: '/global',    label: 'Global',        icon: Globe,      desc: 'World indices, currencies & events' },
+      { path: '/macro',     label: 'Macro Pulse',   icon: Activity,   desc: 'Economic indicators & regime' },
+      { path: '/momentum',  label: 'Momentum',      icon: Zap,        desc: 'Trending movers & velocity' },
+      { path: '/weather',   label: 'Volatility Weather', icon: CloudRain, desc: 'Market storm forecast' },
+      { path: '/rotation',  label: 'Sector Rotation', icon: RefreshCw, desc: 'Where money is flowing' },
     ],
   },
   {
-    label: 'Learn',
+    label: 'AI Tools',
+    badge: 'PRO',
     items: [
-      { path: '/academy',   label: 'Academy',    icon: BookOpen,   desc: 'Investing course — beginner to pro' },
-    ],
-  },
-  {
-    label: 'Research',
-    items: [
-      { path: '/patterns',  label: 'Patterns',   icon: Scan,       desc: 'Chart pattern recognition' },
-      { path: '/compare',   label: 'Compare',    icon: GitCompare, desc: 'Side-by-side stock analysis' },
-      { path: '/chat',      label: 'AI Chat',    icon: MessageSquare, desc: 'Ask AI about any stock' },
+      { path: '/chat',      label: 'AI Chat',       icon: MessageSquare, desc: 'Ask AI about any stock' },
+      { path: '/insights',  label: 'AI Insights',   icon: Lightbulb,  desc: 'Daily AI-curated ideas' },
+      { path: '/patterns',  label: 'Smart Patterns', icon: Scan,      desc: 'AI chart pattern detection' },
+      { path: '/time-machine', label: 'Time Machine', icon: Clock3,   desc: 'What if I had invested…' },
+      { path: '/stress-test', label: 'Stress Test', icon: FlaskConical, desc: 'Simulate market crashes' },
     ],
   },
   {
     label: 'Portfolio',
     items: [
-      { path: '/portfolio', label: 'Portfolio',  icon: PieChart,   desc: 'Holdings & performance' },
-      { path: '/watchlist', label: 'Watchlist',  icon: Eye,        desc: 'Stocks you\'re tracking' },
+      { path: '/portfolio',    label: 'Portfolio',   icon: PieChart,    desc: 'Holdings & performance' },
+      { path: '/xray',         label: 'X-Ray',       icon: Microscope,  desc: 'Deep portfolio diagnostics' },
+      { path: '/watchlist',    label: 'Watchlist',   icon: Eye,         desc: 'Stocks you\'re tracking' },
+      { path: '/dividends',    label: 'Dividends',   icon: CalendarDays, desc: 'Dividend calendar & income' },
+      { path: '/compare',      label: 'Compare',     icon: GitCompare,  desc: 'Side-by-side analysis' },
     ],
   },
   {
-    label: 'Games',
+    label: 'Learn',
     items: [
-      { path: '/battle',        label: 'Battle',    icon: Swords,  desc: 'Stock vs stock showdown' },
-      { path: '/competitions',  label: 'Compete',   icon: Trophy,  desc: 'Prediction competitions' },
+      { path: '/academy',   label: 'Academy',        icon: BookOpen,    desc: 'Investing course — beginner to pro' },
+      { path: '/quiz',      label: 'Investor Quiz',  icon: HelpCircle,  desc: 'Discover your investor type' },
+    ],
+  },
+  {
+    label: 'Play',
+    items: [
+      { path: '/battle',        label: 'Battle Arena',  icon: Swords,   desc: 'Stock vs stock showdown' },
+      { path: '/competitions',  label: 'Competitions',  icon: Trophy,   desc: 'Paper-trading contests' },
     ],
   },
 ];
@@ -239,6 +250,7 @@ export default function Navbar() {
               {/* Top-level tab */}
               <button className="nav-group-btn">
                 <span>{group.label}</span>
+                {group.badge && <span className="nav-group-badge">{group.badge}</span>}
                 <ChevronDown size={13} className="nav-chevron" />
               </button>
 
@@ -266,6 +278,15 @@ export default function Navbar() {
             </div>
           );
         })}
+
+        {/* Upgrade to Pro pill — visible signal + route to pricing */}
+        {user && !user.isGuest && (
+          <Link to="/pricing" className="nav-upgrade-pill" title="You're on the Free plan — upgrade for more">
+            <Zap size={13} />
+            <span className="nav-upgrade-text">Free</span>
+            <span className="nav-upgrade-cta">Upgrade</span>
+          </Link>
+        )}
 
         {/* Settings — standalone */}
         <Link
