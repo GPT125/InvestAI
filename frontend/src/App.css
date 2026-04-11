@@ -4568,3 +4568,405 @@ h2 { letter-spacing: -0.01em; }
     height: 48px;
   }
 }
+
+/* ============================================================
+   Navbar — Upgrade pill + PRO badge on nav group
+   ============================================================ */
+.nav-upgrade-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(124,140,248,0.22) 0%, rgba(245,158,11,0.22) 100%);
+  border: 1px solid rgba(124,140,248,0.45);
+  text-decoration: none;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  margin: 0 8px;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+.nav-upgrade-pill:hover {
+  transform: translateY(-1px);
+  border-color: #f59e0b;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
+}
+.nav-upgrade-text {
+  color: #cbd5e1;
+  font-weight: 500;
+}
+.nav-upgrade-cta {
+  background: linear-gradient(135deg, #7c8cf8, #f59e0b);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.nav-group-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #fff;
+  background: linear-gradient(135deg, #7c8cf8, #f59e0b);
+  padding: 2px 5px;
+  border-radius: 4px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   Pricing Page
+   ============================================================ */
+.pricing-page {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.pricing-hero {
+  text-align: center;
+  padding: 24px 0 28px;
+}
+.pricing-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(124,140,248,0.14);
+  border: 1px solid rgba(124,140,248,0.35);
+  color: #a5b4fc;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin-bottom: 14px;
+}
+.pricing-hero-title {
+  font-size: 36px;
+  font-weight: 800;
+  margin: 6px 0 10px;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #fff 0%, #a5b4fc 60%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.pricing-hero-sub {
+  color: var(--color-text-muted, #94a3b8);
+  font-size: 15px;
+  max-width: 540px;
+  margin: 0 auto 20px;
+  line-height: 1.5;
+}
+.pricing-toggle {
+  display: inline-flex;
+  padding: 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+  gap: 4px;
+}
+.pricing-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pricing-toggle-btn.active {
+  background: #7c8cf8;
+  color: #fff;
+}
+.pricing-save-pill {
+  background: rgba(34,197,94,0.2);
+  color: #22c55e;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.pricing-toggle-btn.active .pricing-save-pill {
+  background: rgba(34,197,94,0.3);
+  color: #bbf7d0;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin: 30px 0 36px;
+}
+.pricing-card {
+  position: relative;
+  background: var(--color-card, rgba(255,255,255,0.04));
+  border: 1px solid var(--color-border, rgba(255,255,255,0.08));
+  border-radius: 18px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.pricing-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(124,140,248,0.4);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.pricing-card.popular {
+  border-color: var(--plan-accent, #7c8cf8);
+  box-shadow: 0 12px 40px rgba(124, 140, 248, 0.22);
+  transform: translateY(-6px);
+}
+.pricing-card.popular:hover {
+  transform: translateY(-8px);
+}
+.pricing-popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #7c8cf8, #a855f7);
+  color: #fff;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 16px rgba(124, 140, 248, 0.4);
+}
+
+.pricing-card-head {
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 18px;
+}
+.pricing-plan-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.pricing-plan-name h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: #f1f5f9;
+}
+.pricing-plan-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+.pricing-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.pricing-price {
+  font-size: 38px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -1px;
+}
+.pricing-period {
+  font-size: 14px;
+  color: var(--color-text-muted, #94a3b8);
+}
+.pricing-annual-note {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.pricing-desc {
+  font-size: 13px;
+  color: var(--color-text-muted, #94a3b8);
+  margin: 10px 0 0;
+  line-height: 1.5;
+}
+
+.pricing-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  flex: 1;
+}
+.pricing-features li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: #e2e8f0;
+}
+.pricing-features li.excluded {
+  color: #64748b;
+}
+.pricing-features li.excluded .pricing-feature-name {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+.pricing-check {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+.pricing-x {
+  color: #475569;
+  flex-shrink: 0;
+}
+.pricing-feature-name {
+  flex: 1;
+}
+.pricing-feature-val {
+  font-size: 11px;
+  color: #94a3b8;
+  background: rgba(255,255,255,0.04);
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.pricing-cta {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(124,140,248,0.4);
+  background: transparent;
+  color: #a5b4fc;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.pricing-cta:hover:not(:disabled) {
+  background: rgba(124,140,248,0.1);
+  transform: translateY(-1px);
+}
+.pricing-cta.primary {
+  background: #7c8cf8;
+  color: #fff;
+  border-color: transparent;
+}
+.pricing-cta.primary:hover:not(:disabled) {
+  box-shadow: 0 8px 24px rgba(124, 140, 248, 0.4);
+}
+.pricing-cta:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Trust strip */
+.pricing-trust {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 10px 0 40px;
+  padding: 20px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+}
+.pricing-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #cbd5e1;
+}
+.pricing-trust-item svg {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+.pricing-trust-item strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+.pricing-trust-item span {
+  font-size: 12px;
+  color: var(--color-text-muted, #94a3b8);
+}
+
+/* FAQ */
+.pricing-faq {
+  margin-top: 20px;
+}
+.pricing-faq h2 {
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 22px;
+}
+.pricing-faq-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.pricing-faq-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.pricing-faq-item h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #f1f5f9;
+}
+.pricing-faq-item p {
+  font-size: 13px;
+  margin: 0;
+  color: var(--color-text-muted, #94a3b8);
+  line-height: 1.55;
+}
+
+.pricing-footer-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-text-muted, #94a3b8);
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+@media (max-width: 900px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .pricing-card.popular {
+    transform: none;
+  }
+  .pricing-card.popular:hover {
+    transform: translateY(-3px);
+  }
+  .pricing-trust,
+  .pricing-faq-grid {
+    grid-template-columns: 1fr;
+  }
+  .pricing-hero-title {
+    font-size: 28px;
+  }
+  .nav-upgrade-pill .nav-upgrade-text {
+    display: none;
+  }
+}
